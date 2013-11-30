@@ -1,23 +1,17 @@
 package com.kircherelectronics.com.gyroscopeexplorer.sensor;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
-import org.apache.commons.math3.linear.ArrayRealVector;
-import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.linear.RealVector;
-
-import com.kircherelectronics.com.gyroscopeexplorer.sensor.observer.MagneticSensorObserver;
 
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Log;
+
+import com.kircherelectronics.com.gyroscopeexplorer.sensor.observer.MagneticSensorObserver;
 
 /*
  * Copyright 2013, Kaleb Kircher - Boki Software, Kircher Electronics

@@ -1,4 +1,4 @@
-package com.kircherelectronics.com.gyroscopeexplorer.sensor.observer;
+package com.kircherelectronics.gyroscopeexplorer.sensor.observer;
 
 /*
  * Copyright 2013, Kaleb Kircher - Boki Software, Kircher Electronics

@@ -1,4 +1,4 @@
-package com.kircherelectronics.com.gyroscopeexplorer.filter;
+package com.kircherelectronics.gyroscopeexplorer.filter;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

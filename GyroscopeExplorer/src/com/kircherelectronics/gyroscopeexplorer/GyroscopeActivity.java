@@ -1,25 +1,28 @@
-package com.kircherelectronics.com.gyroscopeexplorer;
+package com.kircherelectronics.gyroscopeexplorer;
 
 import java.text.DecimalFormat;
+import java.util.Arrays;
 
 import android.app.Activity;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.kircherelectronics.com.gyroscopeexplorer.filter.MeanFilter;
-import com.kircherelectronics.com.gyroscopeexplorer.sensor.AccelerationSensor;
-import com.kircherelectronics.com.gyroscopeexplorer.sensor.GyroscopeSensor;
-import com.kircherelectronics.com.gyroscopeexplorer.sensor.GyroscopeSensorUncalibrated;
-import com.kircherelectronics.com.gyroscopeexplorer.sensor.MagneticSensor;
-import com.kircherelectronics.com.gyroscopeexplorer.sensor.observer.AccelerationSensorObserver;
-import com.kircherelectronics.com.gyroscopeexplorer.sensor.observer.GyroscopeSensorObserver;
-import com.kircherelectronics.com.gyroscopeexplorer.sensor.observer.GyroscopeSensorUncalibratedObserver;
-import com.kircherelectronics.com.gyroscopeexplorer.sensor.observer.MagneticSensorObserver;
+import com.kircherelectronics.com.gyroscopeexplorer.R;
+import com.kircherelectronics.gyroscopeexplorer.filter.MeanFilter;
 import com.kircherelectronics.gyroscopeexplorer.gauge.flat.GaugeBearingFlat;
 import com.kircherelectronics.gyroscopeexplorer.gauge.flat.GaugeRotationFlat;
+import com.kircherelectronics.gyroscopeexplorer.sensor.AccelerationSensor;
+import com.kircherelectronics.gyroscopeexplorer.sensor.GyroscopeSensor;
+import com.kircherelectronics.gyroscopeexplorer.sensor.GyroscopeSensorUncalibrated;
+import com.kircherelectronics.gyroscopeexplorer.sensor.MagneticSensor;
+import com.kircherelectronics.gyroscopeexplorer.sensor.observer.AccelerationSensorObserver;
+import com.kircherelectronics.gyroscopeexplorer.sensor.observer.GyroscopeSensorObserver;
+import com.kircherelectronics.gyroscopeexplorer.sensor.observer.GyroscopeSensorUncalibratedObserver;
+import com.kircherelectronics.gyroscopeexplorer.sensor.observer.MagneticSensorObserver;
 
 /*
  * Gyroscope Explorer
@@ -289,7 +292,7 @@ public class GyroscopeActivity extends Activity implements
 
 		// This timestep's delta rotation to be multiplied by the current
 		// rotation after computing it from the gyro sample data.
-		if (timestampOldRaw != 0 && stateInitializedCalibrated)
+		if (timestampOldRaw != 0 && stateInitializedRaw)
 		{
 			final float dT = (timestamp - timestampOldRaw) * NS2S;
 
@@ -497,13 +500,6 @@ public class GyroscopeActivity extends Activity implements
 	 */
 	private void restart()
 	{
-		accelerationSampleCount = 0;
-		magneticSampleCount = 0;
-
-		hasInitialOrientation = false;
-		stateInitializedCalibrated = false;
-		stateInitializedRaw = false;
-
 		accelerationSensor.registerAccelerationObserver(this);
 		magneticSensor.registerMagneticObserver(this);
 		gyroscopeSensor.registerGyroscopeObserver(this);

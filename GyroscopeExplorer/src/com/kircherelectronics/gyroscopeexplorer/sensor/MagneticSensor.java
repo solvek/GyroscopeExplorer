@@ -1,4 +1,4 @@
-package com.kircherelectronics.com.gyroscopeexplorer.sensor;
+package com.kircherelectronics.gyroscopeexplorer.sensor;
 
 import java.util.ArrayList;
 
@@ -11,7 +11,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-import com.kircherelectronics.com.gyroscopeexplorer.sensor.observer.MagneticSensorObserver;
+import com.kircherelectronics.gyroscopeexplorer.sensor.observer.MagneticSensorObserver;
 
 /*
  * Copyright 2013, Kaleb Kircher - Boki Software, Kircher Electronics

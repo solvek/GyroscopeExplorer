@@ -1,4 +1,4 @@
-package com.kircherelectronics.com.gyroscopeexplorer.sensor.observer;
+package com.kircherelectronics.gyroscopeexplorer.sensor.observer;
 
 /*
  * Copyright 2013, Kaleb Kircher - Boki Software, Kircher Electronics
@@ -17,21 +17,18 @@ package com.kircherelectronics.com.gyroscopeexplorer.sensor.observer;
  */
 
 /**
- * An magnetic sensor observer interface. Classes that need to observe the
- * magnetic sensor for updates should do so with this interface.
+ * An gyroscope sensor observer interface. Classes that need to observe the
+ * uncalibrated gyroscope sensor for updates should do so with this interface.
  * 
  * @author Kaleb
  * @version %I%, %G%
  */
-public interface MagneticSensorObserver
+public interface GyroscopeSensorUncalibratedObserver
 {
 	/**
-	 * Notify observers when new magnetic measurements are available.
-	 * 
-	 * @param magnetic
-	 *            the magnetic measurements (x, y, z).
-	 * @param timeStamp
-	 *            the time stamp of the measurement.
+	 * Notify observers when new uncalibrated gyroscope measurements are available.
+	 * @param gyroscope the uncalibrated rotation values (x, y, z)
+	 * @param timeStamp the time of the sensor update.
 	 */
-	public void onMagneticSensorChanged(float[] magnetic, long timeStamp);
+	public void onGyroscopeSensorUncalibratedChanged(float[] gyroscope, long timeStamp);
 }

@@ -1,4 +1,4 @@
-package com.kircherelectronics.com.gyroscopeexplorer.sensor;
+package com.kircherelectronics.gyroscopeexplorer.sensor;
 
 import java.util.ArrayList;
 
@@ -11,8 +11,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-import com.kircherelectronics.com.gyroscopeexplorer.sensor.observer.GyroscopeSensorObserver;
-import com.kircherelectronics.com.gyroscopeexplorer.sensor.observer.GyroscopeSensorUncalibratedObserver;
+import com.kircherelectronics.gyroscopeexplorer.sensor.observer.AccelerationSensorObserver;
 
 /*
  * Copyright 2013, Kaleb Kircher - Boki Software, Kircher Electronics
@@ -31,32 +30,26 @@ import com.kircherelectronics.com.gyroscopeexplorer.sensor.observer.GyroscopeSen
  */
 
 /**
- * Gyroscope Sensor is a subject in an Observer Pattern for classes that need to
- * be provided with rotation measurements. Gyroscope Sensor implements
- * Sensor.TYPE_GYROSCOPE and provides methods for managing SensorEvents and
+ * Acceleration Sensor is a subject in an Observer Pattern for classes that need
+ * to be provided with acceleration measurements. Acceleration Sensor implements
+ * Sensor.TYPE_ACCELEROMETER and provides methods for managing SensorEvents and
  * rotations.
- * 
- * Note that not all devices support Sensor.TYPE_GYROSCOPE. If
- * Sensor.TYPE_GYROSCOPE is supported, it can not be guaranteed that the
- * gyroscope sensors drift has been compensated for. Therefore, appropriate
- * algorithms should be applied to the sensor measurements to ensure stability
- * across devices.
  * 
  * @author Kaleb
  * @version %I%, %G%
  */
-public class GyroscopeSensorUncalibrated implements SensorEventListener
+public class AccelerationSensor implements SensorEventListener
 {
 	/*
 	 * Developer Note: Quaternions are used for the internal representations of
 	 * the rotations which prevents the polar anomalies associated with Gimbal
 	 * lock when using Euler angles for the rotations.
 	 */
-
-	private static final String tag = GyroscopeSensorUncalibrated.class.getSimpleName();
 	
+	private static final String tag = AccelerationSensor.class.getSimpleName();
+
 	// Keep track of observers.
-	private ArrayList<GyroscopeSensorUncalibratedObserver> observersGyroscope;
+	private ArrayList<AccelerationSensorObserver> observersAcceleration;
 
 	// Keep track of the application mode. Vehicle Mode occurs when the device
 	// is in the Landscape orientation and the sensors are rotated to face the
@@ -66,9 +59,9 @@ public class GyroscopeSensorUncalibrated implements SensorEventListener
 	// We need the Context to register for Sensor Events.
 	private Context context;
 
-	// Keep a local copy of the rotation values that are copied from the
+	// Keep a local copy of the acceleration values that are copied from the
 	// sensor event.
-	private float[] gyroscope = new float[6];
+	private float[] acceleration = new float[3];
 
 	// The time stamp of the most recent Sensor Event.
 	private long timeStamp = 0;
@@ -96,64 +89,67 @@ public class GyroscopeSensorUncalibrated implements SensorEventListener
 	 * @param context
 	 *            the Activities context.
 	 */
-	public GyroscopeSensorUncalibrated(Context context)
+	public AccelerationSensor(Context context)
 	{
 		super();
 
 		this.context = context;
 
+		// initEulerRotations();
 		initQuaternionRotations();
 
-		observersGyroscope = new ArrayList<GyroscopeSensorUncalibratedObserver>();
+		observersAcceleration = new ArrayList<AccelerationSensorObserver>();
 
 		sensorManager = (SensorManager) this.context
 				.getSystemService(Context.SENSOR_SERVICE);
 	}
 
 	/**
-	 * Register for Sensor.TYPE_GYROSCOPE measurements.
+	 * Register for Sensor.TYPE_ACCELEROMETER measurements.
 	 * 
 	 * @param observer
 	 *            The observer to be registered.
 	 */
-	public void registerGyroscopeObserver(GyroscopeSensorUncalibratedObserver observer)
+	public void registerAccelerationObserver(AccelerationSensorObserver observer)
 	{
-		if (observersGyroscope.size() == 0)
+		// If there are currently no observers, but one has just requested to be
+		// registered, register to listen for sensor events from the device.
+		if (observersAcceleration.size() == 0)
 		{
-			boolean enabled = sensorManager.registerListener(this,
-					sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED),
+			sensorManager.registerListener(this,
+					sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
 					SensorManager.SENSOR_DELAY_FASTEST);
 		}
-		
+
 		// Only register the observer if it is not already registered.
-		int i = observersGyroscope.indexOf(observer);
+		int i = observersAcceleration.indexOf(observer);
 		if (i == -1)
 		{
-			observersGyroscope.add(observer);
+			observersAcceleration.add(observer);
 		}
+
 	}
 
 	/**
-	 * Remove Sensor.TYPE_GYROSCOPE measurements.
+	 * Remove Sensor.TYPE_ACCELEROMETER measurements.
 	 * 
 	 * @param observer
 	 *            The observer to be removed.
 	 */
-	public void removeGyroscopeObserver(GyroscopeSensorObserver observer)
+	public void removeAccelerationObserver(AccelerationSensorObserver observer)
 	{
-		int i = observersGyroscope.indexOf(observer);
+		int i = observersAcceleration.indexOf(observer);
 		if (i >= 0)
 		{
-			observersGyroscope.remove(i);
+			observersAcceleration.remove(i);
 		}
 
 		// If there are no observers, then don't listen for Sensor Events.
-		if (observersGyroscope.size() == 0)
+		if (observersAcceleration.size() == 0)
 		{
 			sensorManager.unregisterListener(this);
 		}
 	}
-
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy)
@@ -164,19 +160,19 @@ public class GyroscopeSensorUncalibrated implements SensorEventListener
 	@Override
 	public void onSensorChanged(SensorEvent event)
 	{
-		if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE_UNCALIBRATED)
+		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
 		{
-			System.arraycopy(event.values, 0, this.gyroscope, 0,
+			System.arraycopy(event.values, 0, acceleration, 0,
 					event.values.length);
 
-			this.timeStamp = event.timestamp;
+			timeStamp = event.timestamp;
 
 			if (vehicleMode)
 			{
-				this.gyroscope = quaternionToDeviceVehicleMode(this.gyroscope);
+				acceleration = quaternionToDeviceVehicleMode(acceleration);
 			}
 
-			notifyGyroscopeObserver();
+			notifyAccelerationObserver();
 		}
 	}
 
@@ -214,15 +210,15 @@ public class GyroscopeSensorUncalibrated implements SensorEventListener
 		// Create the composite rotation.
 		rotationQuaternion = yQuaternion.applyTo(xQuaternion);
 	}
-	
+
 	/**
 	 * Notify observers with new measurements.
 	 */
-	private void notifyGyroscopeObserver()
+	private void notifyAccelerationObserver()
 	{
-		for (GyroscopeSensorUncalibratedObserver a : observersGyroscope)
+		for (AccelerationSensorObserver a : observersAcceleration)
 		{
-			a.onGyroscopeSensorUncalibratedChanged(this.gyroscope, this.timeStamp);
+			a.onAccelerationSensorChanged(this.acceleration, this.timeStamp);
 		}
 	}
 

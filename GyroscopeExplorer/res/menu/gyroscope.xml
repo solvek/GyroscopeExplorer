@@ -5,5 +5,11 @@
         android:orderInCategory="100"
         android:showAsAction="always"
         android:title="@string/action_reset"/>
+    
+        <item
+        android:id="@+id/action_config"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:title="@string/action_config"/>
 
 </menu>

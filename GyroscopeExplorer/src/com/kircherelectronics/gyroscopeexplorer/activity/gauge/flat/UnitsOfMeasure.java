@@ -1,4 +1,4 @@
-package com.kircherelectronics.gyroscopeexplorer.gauge.flat;
+package com.kircherelectronics.gyroscopeexplorer.activity.gauge.flat;
 
 /*
  * Copyright 2013, Kircher Electronics

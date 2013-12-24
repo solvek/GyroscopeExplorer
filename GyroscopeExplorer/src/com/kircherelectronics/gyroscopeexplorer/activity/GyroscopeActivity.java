@@ -1,28 +1,33 @@
-package com.kircherelectronics.gyroscopeexplorer;
+package com.kircherelectronics.gyroscopeexplorer.activity;
 
 import java.text.DecimalFormat;
-import java.util.Arrays;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.kircherelectronics.com.gyroscopeexplorer.R;
-import com.kircherelectronics.gyroscopeexplorer.filter.MeanFilter;
-import com.kircherelectronics.gyroscopeexplorer.gauge.flat.GaugeBearingFlat;
-import com.kircherelectronics.gyroscopeexplorer.gauge.flat.GaugeRotationFlat;
-import com.kircherelectronics.gyroscopeexplorer.sensor.AccelerationSensor;
-import com.kircherelectronics.gyroscopeexplorer.sensor.GyroscopeSensor;
-import com.kircherelectronics.gyroscopeexplorer.sensor.GyroscopeSensorUncalibrated;
-import com.kircherelectronics.gyroscopeexplorer.sensor.MagneticSensor;
-import com.kircherelectronics.gyroscopeexplorer.sensor.observer.AccelerationSensorObserver;
-import com.kircherelectronics.gyroscopeexplorer.sensor.observer.GyroscopeSensorObserver;
-import com.kircherelectronics.gyroscopeexplorer.sensor.observer.GyroscopeSensorUncalibratedObserver;
-import com.kircherelectronics.gyroscopeexplorer.sensor.observer.MagneticSensorObserver;
+import com.kircherelectronics.gyroscopeexplorer.activity.filter.MeanFilter;
+import com.kircherelectronics.gyroscopeexplorer.activity.gauge.flat.GaugeBearingFlat;
+import com.kircherelectronics.gyroscopeexplorer.activity.gauge.flat.GaugeRotationFlat;
+import com.kircherelectronics.gyroscopeexplorer.activity.prefs.HintsPreferences;
+import com.kircherelectronics.gyroscopeexplorer.activity.prefs.PreferenceNames;
+import com.kircherelectronics.gyroscopeexplorer.activity.utils.Utils;
+import com.kircherelectronics.gyroscopeexplorer.sensor.FusedGyroscopeSensor;
+import com.kircherelectronics.gyroscopeexplorer.sensor.listener.FusedGyroscopeSensorListener;
 
 /*
  * Gyroscope Explorer
@@ -42,9 +47,8 @@ import com.kircherelectronics.gyroscopeexplorer.sensor.observer.MagneticSensorOb
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-public class GyroscopeActivity extends Activity implements
-		GyroscopeSensorObserver, GyroscopeSensorUncalibratedObserver,
-		AccelerationSensorObserver, MagneticSensorObserver
+public class GyroscopeActivity extends Activity implements SensorEventListener,
+		FusedGyroscopeSensorListener
 {
 
 	public static final float EPSILON = 0.000000001f;
@@ -57,6 +61,9 @@ public class GyroscopeActivity extends Activity implements
 	private boolean hasInitialOrientation = false;
 	private boolean stateInitializedCalibrated = false;
 	private boolean stateInitializedRaw = false;
+
+	private boolean useFusedEstimation = false;
+	private boolean useRadianUnits = false;
 
 	// The gauge views. Note that these are views and UI hogs since they run in
 	// the UI thread, not ideal, but easy to use.
@@ -88,6 +95,8 @@ public class GyroscopeActivity extends Activity implements
 	// magnetic field vector
 	private float[] magnetic;
 
+	private FusedGyroscopeSensor fusedGyroscopeSensor;
+
 	private int accelerationSampleCount = 0;
 	private int magneticSampleCount = 0;
 
@@ -97,10 +106,8 @@ public class GyroscopeActivity extends Activity implements
 	private MeanFilter accelerationFilter;
 	private MeanFilter magneticFilter;
 
-	private AccelerationSensor accelerationSensor;
-	private GyroscopeSensor gyroscopeSensor;
-	private GyroscopeSensorUncalibrated gyroscopeUncalibratedSensor;
-	private MagneticSensor magneticSensor;
+	// We need the SensorManager to register for Sensor Events.
+	private SensorManager sensorManager;
 
 	private TextView xAxisRaw;
 	private TextView yAxisRaw;
@@ -147,14 +154,23 @@ public class GyroscopeActivity extends Activity implements
 			restart();
 			return true;
 
+			// Reset everything
+		case R.id.action_config:
+			Intent intent = new Intent();
+			intent.setClass(this, ConfigActivity.class);
+			startActivity(intent);
+			return true;
+
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
 
-	public void onStart()
+	public void onResume()
 	{
-		super.onStart();
+		super.onResume();
+
+		readPrefs();
 
 		restart();
 	}
@@ -167,6 +183,61 @@ public class GyroscopeActivity extends Activity implements
 	}
 
 	@Override
+	public void onSensorChanged(SensorEvent event)
+	{
+		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+		{
+			onAccelerationSensorChanged(event.values, event.timestamp);
+		}
+
+		if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
+		{
+			onMagneticSensorChanged(event.values, event.timestamp);
+		}
+
+		if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE)
+		{
+			onGyroscopeSensorChanged(event.values, event.timestamp);
+		}
+
+		if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE_UNCALIBRATED)
+		{
+			onGyroscopeSensorUncalibratedChanged(event.values, event.timestamp);
+		}
+	}
+
+	@Override
+	public void onAngularVelocitySensorChanged(float[] angularVelocity,
+			long timeStamp)
+	{
+		gaugeBearingCalibrated.updateBearing(angularVelocity[0]);
+		gaugeTiltCalibrated.updateRotation(angularVelocity);
+		
+		TextView status = (TextView) this
+				.findViewById(R.id.label_calibrated_status);
+		status.setText(R.string.sensor_active);
+
+		int color = getResources().getColor(R.color.light_green);
+
+		status.setTextColor(color);
+
+		if (useRadianUnits)
+		{
+			xAxisCalibrated.setText(df.format(angularVelocity[0]));
+			yAxisCalibrated.setText(df.format(angularVelocity[1]));
+			zAxisCalibrated.setText(df.format(angularVelocity[2]));
+		}
+		else
+		{
+			xAxisCalibrated.setText(df.format(Math
+					.toDegrees(angularVelocity[0])));
+			yAxisCalibrated.setText(df.format(Math
+					.toDegrees(angularVelocity[1])));
+			zAxisCalibrated.setText(df.format(Math
+					.toDegrees(angularVelocity[2])));
+		}
+	}
+
 	public void onAccelerationSensorChanged(float[] acceleration, long timeStamp)
 	{
 		// Get a local copy of the raw magnetic values from the device sensor.
@@ -191,7 +262,6 @@ public class GyroscopeActivity extends Activity implements
 		}
 	}
 
-	@Override
 	public void onGyroscopeSensorChanged(float[] gyroscope, long timestamp)
 	{
 		// don't start until first accelerometer/magnetometer orientation has
@@ -208,6 +278,14 @@ public class GyroscopeActivity extends Activity implements
 					currentRotationMatrixCalibrated, initialRotationMatrix);
 
 			stateInitializedCalibrated = true;
+
+			TextView status = (TextView) this
+					.findViewById(R.id.label_calibrated_status);
+			status.setText(R.string.sensor_active);
+
+			int color = getResources().getColor(R.color.light_green);
+
+			status.setTextColor(color);
 		}
 
 		// This timestep's delta rotation to be multiplied by the current
@@ -265,12 +343,26 @@ public class GyroscopeActivity extends Activity implements
 		gaugeBearingCalibrated.updateBearing(gyroscopeOrientationCalibrated[0]);
 		gaugeTiltCalibrated.updateRotation(gyroscopeOrientationCalibrated);
 
-		xAxisCalibrated.setText(df.format(gyroscopeOrientationCalibrated[0]));
-		yAxisCalibrated.setText(df.format(gyroscopeOrientationCalibrated[1]));
-		zAxisCalibrated.setText(df.format(gyroscopeOrientationCalibrated[2]));
+		if (useRadianUnits)
+		{
+			xAxisCalibrated.setText(df
+					.format(gyroscopeOrientationCalibrated[0]));
+			yAxisCalibrated.setText(df
+					.format(gyroscopeOrientationCalibrated[1]));
+			zAxisCalibrated.setText(df
+					.format(gyroscopeOrientationCalibrated[2]));
+		}
+		else
+		{
+			xAxisCalibrated.setText(df.format(Math
+					.toDegrees(gyroscopeOrientationCalibrated[0])));
+			yAxisCalibrated.setText(df.format(Math
+					.toDegrees(gyroscopeOrientationCalibrated[1])));
+			zAxisCalibrated.setText(df.format(Math
+					.toDegrees(gyroscopeOrientationCalibrated[2])));
+		}
 	}
 
-	@Override
 	public void onGyroscopeSensorUncalibratedChanged(float[] gyroscope,
 			long timestamp)
 	{
@@ -288,6 +380,14 @@ public class GyroscopeActivity extends Activity implements
 					currentRotationMatrixRaw, initialRotationMatrix);
 
 			stateInitializedRaw = true;
+
+			TextView status = (TextView) this
+					.findViewById(R.id.label_uncalibrated_status);
+			status.setText(R.string.sensor_active);
+
+			int color = getResources().getColor(R.color.light_green);
+
+			status.setTextColor(color);
 		}
 
 		// This timestep's delta rotation to be multiplied by the current
@@ -343,12 +443,23 @@ public class GyroscopeActivity extends Activity implements
 		gaugeBearingRaw.updateBearing(gyroscopeOrientationRaw[0]);
 		gaugeTiltRaw.updateRotation(gyroscopeOrientationRaw);
 
-		xAxisRaw.setText(df.format(gyroscopeOrientationRaw[0]));
-		yAxisRaw.setText(df.format(gyroscopeOrientationRaw[1]));
-		zAxisRaw.setText(df.format(gyroscopeOrientationRaw[2]));
+		if (useRadianUnits)
+		{
+			xAxisRaw.setText(df.format(gyroscopeOrientationRaw[0]));
+			yAxisRaw.setText(df.format(gyroscopeOrientationRaw[1]));
+			zAxisRaw.setText(df.format(gyroscopeOrientationRaw[2]));
+		}
+		else
+		{
+			xAxisRaw.setText(df.format(Math
+					.toDegrees(gyroscopeOrientationRaw[0])));
+			yAxisRaw.setText(df.format(Math
+					.toDegrees(gyroscopeOrientationRaw[1])));
+			zAxisRaw.setText(df.format(Math
+					.toDegrees(gyroscopeOrientationRaw[2])));
+		}
 	}
 
-	@Override
 	public void onMagneticSensorChanged(float[] magnetic, long timeStamp)
 	{
 		// Get a local copy of the raw magnetic values from the device sensor.
@@ -376,8 +487,10 @@ public class GyroscopeActivity extends Activity implements
 		// Remove the sensor observers since they are no longer required.
 		if (hasInitialOrientation)
 		{
-			accelerationSensor.removeAccelerationObserver(this);
-			magneticSensor.removeMagneticObserver(this);
+			sensorManager.unregisterListener(this,
+					sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
+			sensorManager.unregisterListener(this,
+					sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD));
 		}
 	}
 
@@ -429,10 +542,10 @@ public class GyroscopeActivity extends Activity implements
 	 */
 	private void initSensors()
 	{
-		accelerationSensor = new AccelerationSensor(this);
-		magneticSensor = new MagneticSensor(this);
-		gyroscopeSensor = new GyroscopeSensor(this);
-		gyroscopeUncalibratedSensor = new GyroscopeSensorUncalibrated(this);
+		sensorManager = (SensorManager) this
+				.getSystemService(Context.SENSOR_SERVICE);
+
+		fusedGyroscopeSensor = new FusedGyroscopeSensor();
 	}
 
 	/**
@@ -498,24 +611,114 @@ public class GyroscopeActivity extends Activity implements
 	 * Restarts all of the sensor observers and resets the activity to the
 	 * initial state. This should only be called *after* a call to reset().
 	 */
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 	private void restart()
 	{
-		accelerationSensor.registerAccelerationObserver(this);
-		magneticSensor.registerMagneticObserver(this);
-		gyroscopeSensor.registerGyroscopeObserver(this);
-		gyroscopeUncalibratedSensor.registerGyroscopeObserver(this);
+		sensorManager.registerListener(this,
+				sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+				SensorManager.SENSOR_DELAY_FASTEST);
+
+		sensorManager.registerListener(this,
+				sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
+				SensorManager.SENSOR_DELAY_FASTEST);
+
+		// Do not register for gyroscope updates if we are going to use the
+		// fused version of the sensor...
+		if (!useFusedEstimation)
+		{
+			sensorManager.registerListener(this,
+					sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
+					SensorManager.SENSOR_DELAY_FASTEST);
+		}
+
+		if (Utils.hasKitKat())
+		{
+			sensorManager.registerListener(this, sensorManager
+					.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED),
+					SensorManager.SENSOR_DELAY_FASTEST);
+		}
+
+		// If we want to use the fused version of the gyroscope sensor.
+		if (useFusedEstimation)
+		{
+			boolean hasGravity = sensorManager.registerListener(
+					fusedGyroscopeSensor,
+					sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY),
+					SensorManager.SENSOR_DELAY_FASTEST);
+
+			// If for some reason the gravity sensor does not exist, fall back
+			// onto the acceleration sensor.
+			if (!hasGravity)
+			{
+				sensorManager.registerListener(fusedGyroscopeSensor,
+						sensorManager
+								.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+						SensorManager.SENSOR_DELAY_FASTEST);
+			}
+
+			sensorManager.registerListener(fusedGyroscopeSensor,
+					sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
+					SensorManager.SENSOR_DELAY_FASTEST);
+
+			sensorManager.registerListener(fusedGyroscopeSensor,
+					sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
+					SensorManager.SENSOR_DELAY_FASTEST);
+
+			TextView label = (TextView) this
+					.findViewById(R.id.label_calibrated_filter_name);
+			label.setText("Fused" + getResources().getString(R.string.sensor_calibrated_name));
+			
+			fusedGyroscopeSensor.registerObserver(this);
+		}
+		else
+		{
+			TextView label = (TextView) this
+					.findViewById(R.id.label_calibrated_filter_name);
+			label.setText(getResources().getString(R.string.sensor_calibrated_name));
+		}
 	}
 
 	/**
 	 * Removes all of the sensor observers and resets the activity to the
 	 * initial state.
 	 */
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 	private void reset()
 	{
-		accelerationSensor.removeAccelerationObserver(this);
-		magneticSensor.removeMagneticObserver(this);
-		gyroscopeSensor.removeGyroscopeObserver(this);
-		gyroscopeUncalibratedSensor.removeGyroscopeObserver(this);
+		sensorManager.unregisterListener(this,
+				sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
+
+		sensorManager.unregisterListener(this,
+				sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD));
+
+		if (!useFusedEstimation)
+		{
+			sensorManager.unregisterListener(this,
+					sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE));
+		}
+
+		if (Utils.hasKitKat())
+		{
+			sensorManager.unregisterListener(this, sensorManager
+					.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED));
+		}
+
+		if (useFusedEstimation)
+		{
+			sensorManager.unregisterListener(fusedGyroscopeSensor,
+					sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY));
+
+			sensorManager.unregisterListener(fusedGyroscopeSensor,
+					sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
+
+			sensorManager.unregisterListener(fusedGyroscopeSensor,
+					sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD));
+
+			sensorManager.unregisterListener(fusedGyroscopeSensor,
+					sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE));
+			
+			fusedGyroscopeSensor.removeObserver(this);
+		}
 
 		initMaths();
 
@@ -525,5 +728,28 @@ public class GyroscopeActivity extends Activity implements
 		hasInitialOrientation = false;
 		stateInitializedCalibrated = false;
 		stateInitializedRaw = false;
+	}
+
+	private void readPrefs()
+	{
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(this);
+
+		useFusedEstimation = prefs.getBoolean(ConfigActivity.FUSION_PREFERENCE,
+				false);
+
+		useRadianUnits = prefs.getBoolean(ConfigActivity.UNITS_PREFERENCE,
+				true);
+
+		Log.d(tag, "Fusion: " + String.valueOf(useFusedEstimation));
+
+		Log.d(tag, "Units Radians: " + String.valueOf(useRadianUnits));
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy)
+	{
+		// TODO Auto-generated method stub
+
 	}
 }

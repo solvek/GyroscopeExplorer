@@ -37,6 +37,28 @@
     </RelativeLayout>
 
     <RelativeLayout
+        android:id="@+id/layout_calibrated_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp" >
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true" >
+
+            <TextView
+                android:id="@+id/label_calibrated_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:text="@string/sensor_unavailable"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/dark_red" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
         android:id="@+id/layout_calibrated_statistics"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
@@ -146,14 +168,14 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp" >
 
-        <com.kircherelectronics.gyroscopeexplorer.gauge.flat.GaugeBearingFlat
+        <com.kircherelectronics.gyroscopeexplorer.activity.gauge.flat.GaugeBearingFlat
             android:id="@+id/gauge_bearing_calibrated"
             android:layout_width="140dp"
             android:layout_height="140dp"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="20dp" />
 
-        <com.kircherelectronics.gyroscopeexplorer.gauge.flat.GaugeRotationFlat
+        <com.kircherelectronics.gyroscopeexplorer.activity.gauge.flat.GaugeRotationFlat
             android:id="@+id/gauge_tilt_calibrated"
             android:layout_width="140dp"
             android:layout_height="140dp"
@@ -189,6 +211,28 @@
                 android:fontFamily="sans-serif-condensed"
                 android:text="@string/sensor_label"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
+        </RelativeLayout>
+    </RelativeLayout>
+    
+        <RelativeLayout
+        android:id="@+id/layout_uncalibrated_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp" >
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true" >
+
+            <TextView
+                android:id="@+id/label_uncalibrated_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:text="@string/sensor_unavailable"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/dark_red" />
         </RelativeLayout>
     </RelativeLayout>
 
@@ -302,14 +346,14 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp" >
 
-        <com.kircherelectronics.gyroscopeexplorer.gauge.flat.GaugeBearingFlat
+        <com.kircherelectronics.gyroscopeexplorer.activity.gauge.flat.GaugeBearingFlat
             android:id="@+id/gauge_bearing_raw"
             android:layout_width="140dp"
             android:layout_height="140dp"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="20dp" />
 
-        <com.kircherelectronics.gyroscopeexplorer.gauge.flat.GaugeRotationFlat
+        <com.kircherelectronics.gyroscopeexplorer.activity.gauge.flat.GaugeRotationFlat
             android:id="@+id/gauge_tilt_raw"
             android:layout_width="140dp"
             android:layout_height="140dp"

@@ -4,7 +4,9 @@ import java.text.DecimalFormat;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
@@ -212,7 +214,7 @@ public class GyroscopeActivity extends Activity implements SensorEventListener,
 	{
 		gaugeBearingCalibrated.updateBearing(angularVelocity[0]);
 		gaugeTiltCalibrated.updateRotation(angularVelocity);
-		
+
 		TextView status = (TextView) this
 				.findViewById(R.id.label_calibrated_status);
 		status.setText(R.string.sensor_active);
@@ -626,9 +628,14 @@ public class GyroscopeActivity extends Activity implements SensorEventListener,
 		// fused version of the sensor...
 		if (!useFusedEstimation)
 		{
-			sensorManager.registerListener(this,
+			boolean enabled = sensorManager.registerListener(this,
 					sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
 					SensorManager.SENSOR_DELAY_FASTEST);
+
+			if (!enabled)
+			{
+				showGyroscopeNotAvailableAlert();
+			}
 		}
 
 		if (Utils.hasKitKat())
@@ -660,21 +667,29 @@ public class GyroscopeActivity extends Activity implements SensorEventListener,
 					sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
 					SensorManager.SENSOR_DELAY_FASTEST);
 
-			sensorManager.registerListener(fusedGyroscopeSensor,
+			boolean enabled = sensorManager.registerListener(
+					fusedGyroscopeSensor,
 					sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
 					SensorManager.SENSOR_DELAY_FASTEST);
 
+			if (!enabled)
+			{
+				showGyroscopeNotAvailableAlert();
+			}
+
 			TextView label = (TextView) this
 					.findViewById(R.id.label_calibrated_filter_name);
-			label.setText("Fused" + getResources().getString(R.string.sensor_calibrated_name));
-			
+			label.setText("Fused"
+					+ getResources().getString(R.string.sensor_calibrated_name));
+
 			fusedGyroscopeSensor.registerObserver(this);
 		}
 		else
 		{
 			TextView label = (TextView) this
 					.findViewById(R.id.label_calibrated_filter_name);
-			label.setText(getResources().getString(R.string.sensor_calibrated_name));
+			label.setText(getResources().getString(
+					R.string.sensor_calibrated_name));
 		}
 	}
 
@@ -716,7 +731,7 @@ public class GyroscopeActivity extends Activity implements SensorEventListener,
 
 			sensorManager.unregisterListener(fusedGyroscopeSensor,
 					sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE));
-			
+
 			fusedGyroscopeSensor.removeObserver(this);
 		}
 
@@ -738,12 +753,42 @@ public class GyroscopeActivity extends Activity implements SensorEventListener,
 		useFusedEstimation = prefs.getBoolean(ConfigActivity.FUSION_PREFERENCE,
 				false);
 
-		useRadianUnits = prefs.getBoolean(ConfigActivity.UNITS_PREFERENCE,
-				true);
+		useRadianUnits = prefs
+				.getBoolean(ConfigActivity.UNITS_PREFERENCE, true);
 
 		Log.d(tag, "Fusion: " + String.valueOf(useFusedEstimation));
 
 		Log.d(tag, "Units Radians: " + String.valueOf(useRadianUnits));
+	}
+
+	private void showGyroscopeNotAvailableAlert()
+	{
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+		// set title
+		alertDialogBuilder.setTitle("Gyroscope Not Available");
+
+		// set dialog message
+		alertDialogBuilder
+				.setMessage(
+						"Your device is not equipped with a gyroscope or it is not responding...")
+				.setCancelable(false)
+				.setNegativeButton("I'll look around...",
+						new DialogInterface.OnClickListener()
+						{
+							public void onClick(DialogInterface dialog, int id)
+							{
+								// if this button is clicked, just close
+								// the dialog box and do nothing
+								dialog.cancel();
+							}
+						});
+
+		// create alert dialog
+		AlertDialog alertDialog = alertDialogBuilder.create();
+
+		// show it
+		alertDialog.show();
 	}
 
 	@Override

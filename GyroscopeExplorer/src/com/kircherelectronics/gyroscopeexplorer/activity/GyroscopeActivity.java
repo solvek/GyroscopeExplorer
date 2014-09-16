@@ -23,8 +23,8 @@ import android.widget.TextView;
 
 import com.kircherelectronics.com.gyroscopeexplorer.R;
 import com.kircherelectronics.gyroscopeexplorer.activity.filter.MeanFilter;
-import com.kircherelectronics.gyroscopeexplorer.activity.gauge.flat.GaugeBearingFlat;
-import com.kircherelectronics.gyroscopeexplorer.activity.gauge.flat.GaugeRotationFlat;
+import com.kircherelectronics.gyroscopeexplorer.activity.gauge.GaugeBearing;
+import com.kircherelectronics.gyroscopeexplorer.activity.gauge.GaugeRotation;
 import com.kircherelectronics.gyroscopeexplorer.activity.prefs.HintsPreferences;
 import com.kircherelectronics.gyroscopeexplorer.activity.prefs.PreferenceNames;
 import com.kircherelectronics.gyroscopeexplorer.activity.utils.Utils;
@@ -33,7 +33,7 @@ import com.kircherelectronics.gyroscopeexplorer.sensor.listener.FusedGyroscopeSe
 
 /*
  * Gyroscope Explorer
- * Copyright (C) 2013, Kaleb Kircher - Boki Software, Kircher Engineering, LLC
+ * Copyright (C) 2013, Kaleb Kircher - Kircher Engineering, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,10 +69,10 @@ public class GyroscopeActivity extends Activity implements SensorEventListener,
 
 	// The gauge views. Note that these are views and UI hogs since they run in
 	// the UI thread, not ideal, but easy to use.
-	private GaugeBearingFlat gaugeBearingCalibrated;
-	private GaugeBearingFlat gaugeBearingRaw;
-	private GaugeRotationFlat gaugeTiltCalibrated;
-	private GaugeRotationFlat gaugeTiltRaw;
+	private GaugeBearing gaugeBearingCalibrated;
+	private GaugeBearing gaugeBearingRaw;
+	private GaugeRotation gaugeTiltCalibrated;
+	private GaugeRotation gaugeTiltRaw;
 
 	private DecimalFormat df;
 
@@ -572,12 +572,12 @@ public class GyroscopeActivity extends Activity implements SensorEventListener,
 				.findViewById(R.id.value_z_axis_calibrated);
 
 		// Initialize the raw (uncalibrated) gauge views
-		gaugeBearingRaw = (GaugeBearingFlat) findViewById(R.id.gauge_bearing_raw);
-		gaugeTiltRaw = (GaugeRotationFlat) findViewById(R.id.gauge_tilt_raw);
+		gaugeBearingRaw = (GaugeBearing) findViewById(R.id.gauge_bearing_raw);
+		gaugeTiltRaw = (GaugeRotation) findViewById(R.id.gauge_tilt_raw);
 
 		// Initialize the calibrated gauges views
-		gaugeBearingCalibrated = (GaugeBearingFlat) findViewById(R.id.gauge_bearing_calibrated);
-		gaugeTiltCalibrated = (GaugeRotationFlat) findViewById(R.id.gauge_tilt_calibrated);
+		gaugeBearingCalibrated = (GaugeBearing) findViewById(R.id.gauge_bearing_calibrated);
+		gaugeTiltCalibrated = (GaugeRotation) findViewById(R.id.gauge_tilt_calibrated);
 	}
 
 	/**

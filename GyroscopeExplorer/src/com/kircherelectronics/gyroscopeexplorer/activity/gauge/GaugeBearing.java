@@ -1,4 +1,4 @@
-package com.kircherelectronics.gyroscopeexplorer.activity.gauge.flat;
+package com.kircherelectronics.gyroscopeexplorer.activity.gauge;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -48,7 +48,7 @@ import android.view.View;
  * @version %I%, %G%
  * @see http://developer.android.com/reference/android/view/SurfaceView.html
  */
-public final class GaugeBearingFlat extends View
+public final class GaugeBearing extends View
 {
 
 	/*
@@ -102,7 +102,7 @@ public final class GaugeBearingFlat extends View
 	 * break a significant number of them, from subtly to significantly.)
 	 */
 
-	private static final String tag = GaugeBearingFlat.class.getSimpleName();
+	private static final String tag = GaugeBearing.class.getSimpleName();
 
 	// drawing tools
 	private RectF rimRect;
@@ -149,7 +149,7 @@ public final class GaugeBearingFlat extends View
 	 * 
 	 * @param context
 	 */
-	public GaugeBearingFlat(Context context)
+	public GaugeBearing(Context context)
 	{
 		super(context);
 		init();
@@ -161,7 +161,7 @@ public final class GaugeBearingFlat extends View
 	 * @param context
 	 * @param attrs
 	 */
-	public GaugeBearingFlat(Context context, AttributeSet attrs)
+	public GaugeBearing(Context context, AttributeSet attrs)
 	{
 		super(context, attrs);
 		init();
@@ -174,7 +174,7 @@ public final class GaugeBearingFlat extends View
 	 * @param attrs
 	 * @param defStyle
 	 */
-	public GaugeBearingFlat(Context context, AttributeSet attrs, int defStyle)
+	public GaugeBearing(Context context, AttributeSet attrs, int defStyle)
 	{
 		super(context, attrs, defStyle);
 		init();

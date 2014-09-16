@@ -3,13 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".GyroscopeActivity" >
+    android:weightSum="14" >
 
     <RelativeLayout
         android:id="@+id/layout_calibrated_header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp" >
+        android:layout_height="0dp"
+        android:layout_marginTop="5dp"
+        android:layout_weight="0.5" >
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -20,7 +21,6 @@
                 android:id="@+id/label_calibrated_filter_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-condensed"
                 android:text="@string/sensor_calibrated_name"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/dark_orange" />
@@ -30,7 +30,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/label_calibrated_filter_name"
-                android:fontFamily="sans-serif-condensed"
                 android:text="@string/sensor_label"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
         </RelativeLayout>
@@ -39,8 +38,9 @@
     <RelativeLayout
         android:id="@+id/layout_calibrated_status"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp" >
+        android:layout_height="0dp"
+        android:layout_marginTop="5dp"
+        android:layout_weight="0.75" >
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -51,7 +51,6 @@
                 android:id="@+id/label_calibrated_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-condensed"
                 android:text="@string/sensor_unavailable"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@color/dark_red" />
@@ -61,7 +60,8 @@
     <RelativeLayout
         android:id="@+id/layout_calibrated_statistics"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="0dp"
+        android:layout_weight="1" >
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -91,7 +91,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentLeft="true"
-                            android:fontFamily="sans-serif-condensed"
                             android:text="@string/label_x_axis"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -100,7 +99,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_toRightOf="@+id/label_x_axis_calibrated"
-                            android:fontFamily="sans-serif-condensed"
                             android:text="@string/value_default"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
                     </RelativeLayout>
@@ -115,7 +113,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentLeft="true"
-                            android:fontFamily="sans-serif-condensed"
                             android:text="@string/label_y_axis"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -124,7 +121,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_toRightOf="@+id/label_y_axis_calibrated"
-                            android:fontFamily="sans-serif-condensed"
                             android:text="@string/value_default"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
                     </RelativeLayout>
@@ -140,7 +136,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentLeft="true"
-                            android:fontFamily="sans-serif-condensed"
                             android:text="@string/label_z_axis"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -149,7 +144,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_toRightOf="@+id/label_z_axis_calibrated"
-                            android:fontFamily="sans-serif-condensed"
                             android:text="@string/value_default"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
                     </RelativeLayout>
@@ -165,20 +159,21 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp" >
+        android:layout_height="0dp"
+        android:layout_marginTop="5dp"
+        android:layout_weight="4.25" >
 
-        <com.kircherelectronics.gyroscopeexplorer.activity.gauge.flat.GaugeBearingFlat
+        <com.kircherelectronics.gyroscopeexplorer.activity.gauge.GaugeBearing
             android:id="@+id/gauge_bearing_calibrated"
-            android:layout_width="140dp"
-            android:layout_height="140dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="20dp" />
 
-        <com.kircherelectronics.gyroscopeexplorer.activity.gauge.flat.GaugeRotationFlat
+        <com.kircherelectronics.gyroscopeexplorer.activity.gauge.GaugeRotation
             android:id="@+id/gauge_tilt_calibrated"
-            android:layout_width="140dp"
-            android:layout_height="140dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_marginRight="20dp" />
     </RelativeLayout>
@@ -186,8 +181,9 @@
     <RelativeLayout
         android:id="@+id/layout_raw_header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp" >
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        android:layout_weight="0.5" >
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -198,7 +194,6 @@
                 android:id="@+id/label_raw_filter_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-condensed"
                 android:text="@string/sensor_uncalibrated_name"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/dark_orange" />
@@ -208,17 +203,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/label_raw_filter_name"
-                android:fontFamily="sans-serif-condensed"
                 android:text="@string/sensor_label"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
         </RelativeLayout>
     </RelativeLayout>
-    
-        <RelativeLayout
+
+    <RelativeLayout
         android:id="@+id/layout_uncalibrated_status"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp" >
+        android:layout_height="0dp"
+        android:layout_marginTop="5dp"
+        android:layout_weight="0.75" >
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -229,7 +224,6 @@
                 android:id="@+id/label_uncalibrated_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-condensed"
                 android:text="@string/sensor_unavailable"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@color/dark_red" />
@@ -239,7 +233,8 @@
     <RelativeLayout
         android:id="@+id/layout_raw_statistics"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="0dp"
+        android:layout_weight="1" >
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -269,7 +264,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentLeft="true"
-                            android:fontFamily="sans-serif-condensed"
                             android:text="@string/label_x_axis"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -278,7 +272,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_toRightOf="@+id/label_x_axis_raw"
-                            android:fontFamily="sans-serif-condensed"
                             android:text="@string/value_default"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
                     </RelativeLayout>
@@ -293,7 +286,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentLeft="true"
-                            android:fontFamily="sans-serif-condensed"
                             android:text="@string/label_y_axis"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -302,7 +294,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_toRightOf="@+id/label_y_axis_raw"
-                            android:fontFamily="sans-serif-condensed"
                             android:text="@string/value_default"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
                     </RelativeLayout>
@@ -318,7 +309,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentLeft="true"
-                            android:fontFamily="sans-serif-condensed"
                             android:text="@string/label_z_axis"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -327,7 +317,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_toRightOf="@+id/label_z_axis_raw"
-                            android:fontFamily="sans-serif-condensed"
                             android:text="@string/value_default"
                             android:textAppearance="?android:attr/textAppearanceMedium" />
                     </RelativeLayout>
@@ -343,27 +332,29 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp" >
+        android:layout_height="0dp"
+        android:layout_marginTop="5dp"
+        android:layout_weight="4.25" >
 
-        <com.kircherelectronics.gyroscopeexplorer.activity.gauge.flat.GaugeBearingFlat
+        <com.kircherelectronics.gyroscopeexplorer.activity.gauge.GaugeBearing
             android:id="@+id/gauge_bearing_raw"
-            android:layout_width="140dp"
-            android:layout_height="140dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="20dp" />
 
-        <com.kircherelectronics.gyroscopeexplorer.activity.gauge.flat.GaugeRotationFlat
+        <com.kircherelectronics.gyroscopeexplorer.activity.gauge.GaugeRotation
             android:id="@+id/gauge_tilt_raw"
-            android:layout_width="140dp"
-            android:layout_height="140dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_marginRight="20dp" />
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="fill_parent" >
+        android:layout_height="0dp"
+        android:layout_weight="1" >
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -387,7 +378,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@+id/image_developer_icon"
-                    android:fontFamily="sans-serif-condensed"
                     android:text="@string/developer_url"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
             </RelativeLayout>

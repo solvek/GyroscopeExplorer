@@ -36,19 +36,19 @@ Gyroscope Explorer offers a number of different estimations of rotation using se
 
 In most cases, the gyroscope is used to measure the devices orientation. However, the gyrocope tends to drift due to round off errors and other factors. Most gyroscopes work by measuring very small vibrations in the earth's rotation, which means they really do not like external vibrations. Because of drift and external vibrations, the gyroscope has to be compensated with a second estimation of the devices orientation, which comes from the acceleration sensor and magnetic sensor. The acceleration sensor provides the pitch and roll estimations while the magnetic sensor provides the azimuth. A complimentary filter is used to fuse the two orienations together. It takes the form of gyro[0] = alpha * gyro[0] + (1 - alpha) * accel/magnetic[0]. Alpha is defined as alpha = timeConstant / (timeConstant + dt) where the time constant is the length of signals the filter should act on and dt is the sample period (1/frequency) of the sensor.
 
-### Orientation Euler Angles Complimentary Filter (ImuLaCfOrientation)
+### Orientation Euler Angles Complimentary Filter (ImuOCfOrientation)
 
 You can obtain an orientation comprised of Euler Angles (azimuth, pitch and roll) two ways in Android. The first method involves integrating the gyroscope measurements. The second is obtained by using the acceleration and magnetic sensors. These two measurements are ideal for a complimentary filter fusion. Paul Lawitzki wrote such an algorithm (you can find his writeup [here](http://www.thousand-thoughts.com/2012/03/android-sensor-fusion-tutorial/). I have modified it slightly and included it in Acceleration Explorer. While it is not what I consider an elegant, or particularly fast algorithm, it is highly intutive and easier to grasp than most approaches. Most importantly, it works well.
 
-### Rotation Matrix Complimentary Filter (ImuLaCfRotationMatrix)
+### Rotation Matrix Complimentary Filter (ImuOCfRotationMatrix)
 
 Rotation matrices for the gyroscope and acceleration/magnetic sensor can be obtained in much the same way as the orientation Euler angles... in fact you need them to obtain the orientation. Rotation matrices can be scaled with a scalar matrix just like any other matrix, which allows them to be used in a complementary filter. Instead of using the orientation, the complementary filter is applied to the rotation matrices which is slightly more efficient and significantly more elegant than using the orientations. Rotation matrices suffer from many singularites including gimbal lock, so they are not ideal. However, many people are familiar with the concept of rotation matrices so this approach may be more simple to understand.
 
-### Quaternions Complimentary Filter (ImuLaCfQuaternion)
+### Quaternions Complimentary Filter (ImuOCfQuaternion)
 
 Quaternions offer an angle-axis solution to rotations which do not suffer from many of the singularies, including gimbal lock, that you will find with rotation matrices. Quaternions can also be scaled and applied to a complimentary filter. The quaternion complimentary filter is probably the most elegant, robust and accurate of the filters, although it can also be the most difficult to implement.
 
-### Quaternion Kalman Filter (ImuLaKfQuaternion)
+### Quaternion Kalman Filter (ImuOKfQuaternion)
 
 Kalman filtering, also known as linear quadratic estimation (LQE), is an algorithm that uses a series of measurements observed over time, containing noise (random variations) and other inaccuracies, and produces estimates of unknown variables that tend to be more precise than those based on a single measurement alone. More formally, the Kalman filter operates recursively on streams of noisy input data to produce a statistically optimal estimate of the underlying system state. Much like complimentary filters, Kalman filters require two sets of estimations, which we have from the gyroscope and acceleration/magnetic senor. The Acceleration Explorer implementation of the Kalman filter relies on quaternions.
 

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:weightSum="14" >
+    android:weightSum="10" >
 
     <RelativeLayout
         android:id="@+id/layout_calibrated_header"
@@ -22,8 +22,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/sensor_calibrated_name"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/dark_orange" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/light_green"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/label_calibrated_filter_description"
@@ -31,7 +32,8 @@
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/label_calibrated_filter_name"
                 android:text="@string/sensor_label"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textStyle="bold" />
         </RelativeLayout>
     </RelativeLayout>
 
@@ -40,7 +42,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="5dp"
-        android:layout_weight="0.75" >
+        android:layout_weight="0.5" >
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -48,12 +50,12 @@
             android:layout_centerHorizontal="true" >
 
             <TextView
-                android:id="@+id/label_calibrated_status"
+                android:id="@+id/label_sensor_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/sensor_unavailable"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/dark_red" />
+                android:textColor="@color/light_red" />
         </RelativeLayout>
     </RelativeLayout>
 
@@ -61,7 +63,7 @@
         android:id="@+id/layout_calibrated_statistics"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" >
+        android:layout_weight="0.75" >
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -157,252 +159,50 @@
         android:layout_height="1dp"
         android:background="@android:color/darker_gray" />
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="5dp"
-        android:layout_weight="4.25" >
+        android:layout_weight="7.25"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:weightSum="1" >
 
         <com.kircherelectronics.gyroscopeexplorer.activity.gauge.GaugeBearing
             android:id="@+id/gauge_bearing_calibrated"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_marginLeft="20dp" />
+            android:layout_weight="0.5" />
 
         <com.kircherelectronics.gyroscopeexplorer.activity.gauge.GaugeRotation
             android:id="@+id/gauge_tilt_calibrated"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="20dp" />
-    </RelativeLayout>
+            android:layout_weight="0.5" />
+    </LinearLayout>
 
-    <RelativeLayout
-        android:id="@+id/layout_raw_header"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="20dp"
-        android:layout_weight="0.5" >
-
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true" >
-
-            <TextView
-                android:id="@+id/label_raw_filter_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/sensor_uncalibrated_name"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/dark_orange" />
-
-            <TextView
-                android:id="@+id/label_raw_filter_description"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toRightOf="@+id/label_raw_filter_name"
-                android:text="@string/sensor_label"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
-        </RelativeLayout>
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/layout_uncalibrated_status"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="5dp"
-        android:layout_weight="0.75" >
-
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true" >
-
-            <TextView
-                android:id="@+id/label_uncalibrated_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/sensor_unavailable"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/dark_red" />
-        </RelativeLayout>
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/layout_raw_statistics"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" >
-
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true" >
-
-            <TableLayout
-                android:id="@+id/table_raw_statistics_left"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" >
-
-                <TableRow
-                    android:id="@+id/table_raw_statistics_left_row_0"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="2dip" >
-
-                    <RelativeLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="20dp"
-                        android:layout_weight="1" >
-
-                        <TextView
-                            android:id="@+id/label_x_axis_raw"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentLeft="true"
-                            android:text="@string/label_x_axis"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                        <TextView
-                            android:id="@+id/value_x_axis_raw"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_toRightOf="@+id/label_x_axis_raw"
-                            android:text="@string/value_default"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
-                    </RelativeLayout>
-
-                    <RelativeLayout
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" >
-
-                        <TextView
-                            android:id="@+id/label_y_axis_raw"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentLeft="true"
-                            android:text="@string/label_y_axis"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                        <TextView
-                            android:id="@+id/value_y_axis_raw"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_toRightOf="@+id/label_y_axis_raw"
-                            android:text="@string/value_default"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
-                    </RelativeLayout>
-
-                    <RelativeLayout
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="20dp"
-                        android:layout_weight="1" >
-
-                        <TextView
-                            android:id="@+id/label_z_axis_raw"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentLeft="true"
-                            android:text="@string/label_z_axis"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                        <TextView
-                            android:id="@+id/value_z_axis_raw"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_toRightOf="@+id/label_z_axis_raw"
-                            android:text="@string/value_default"
-                            android:textAppearance="?android:attr/textAppearanceMedium" />
-                    </RelativeLayout>
-                </TableRow>
-            </TableLayout>
-        </RelativeLayout>
-    </RelativeLayout>
-
-    <View
+    <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        android:background="@android:color/darker_gray" />
-
-    <RelativeLayout
-        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="5dp"
-        android:layout_weight="4.25" >
+        android:layout_marginBottom="15dp"
+        android:layout_weight="1.25"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:weightSum="1" >
 
-        <com.kircherelectronics.gyroscopeexplorer.activity.gauge.GaugeBearing
-            android:id="@+id/gauge_bearing_raw"
-            android:layout_width="wrap_content"
+        <com.kircherelectronics.gyroscopeexplorer.view.BackgroundButton
+            android:id="@+id/button_start"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_marginLeft="20dp" />
-
-        <com.kircherelectronics.gyroscopeexplorer.activity.gauge.GaugeRotation
-            android:id="@+id/gauge_tilt_raw"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="20dp" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" >
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/color_bar" >
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true" >
-
-                <ImageView
-                    android:id="@+id/image_developer_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="4dp"
-                    android:src="@drawable/ke_icon" />
-
-                <TextView
-                    android:id="@+id/label_developer_description"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_toRightOf="@+id/image_developer_icon"
-                    android:text="@string/developer_url"
-                    android:textAppearance="?android:attr/textAppearanceSmall" />
-            </RelativeLayout>
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/color_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp" >
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true" >
-
-                <ImageView
-                    android:id="@+id/image_color_bar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/color_bar" />
-            </RelativeLayout>
-        </RelativeLayout>
-    </RelativeLayout>
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/start_button_background"
+            android:scaleType="centerInside"
+            android:text="@string/action_start_log"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
+    </LinearLayout>
 
 </LinearLayout>

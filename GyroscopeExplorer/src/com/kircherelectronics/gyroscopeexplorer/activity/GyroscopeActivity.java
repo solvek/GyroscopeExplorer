@@ -1,39 +1,45 @@
 package com.kircherelectronics.gyroscopeexplorer.activity;
 
-import java.text.DecimalFormat;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Calendar;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.os.Build;
+import android.content.pm.PackageManager;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.kircherelectronics.com.gyroscopeexplorer.R;
-import com.kircherelectronics.gyroscopeexplorer.activity.filter.MeanFilter;
+import com.kircherelectronics.gyroscopeexplorer.activity.filter.GyroscopeOrientation;
+import com.kircherelectronics.gyroscopeexplorer.activity.filter.ImuOCfOrientation;
+import com.kircherelectronics.gyroscopeexplorer.activity.filter.ImuOCfQuaternion;
+import com.kircherelectronics.gyroscopeexplorer.activity.filter.ImuOCfRotationMatrix;
+import com.kircherelectronics.gyroscopeexplorer.activity.filter.ImuOKfQuaternion;
+import com.kircherelectronics.gyroscopeexplorer.activity.filter.Orientation;
 import com.kircherelectronics.gyroscopeexplorer.activity.gauge.GaugeBearing;
 import com.kircherelectronics.gyroscopeexplorer.activity.gauge.GaugeRotation;
-import com.kircherelectronics.gyroscopeexplorer.activity.prefs.HintsPreferences;
-import com.kircherelectronics.gyroscopeexplorer.activity.prefs.PreferenceNames;
-import com.kircherelectronics.gyroscopeexplorer.activity.utils.Utils;
-import com.kircherelectronics.gyroscopeexplorer.sensor.FusedGyroscopeSensor;
-import com.kircherelectronics.gyroscopeexplorer.sensor.listener.FusedGyroscopeSensorListener;
 
 /*
  * Gyroscope Explorer
- * Copyright (C) 2013, Kaleb Kircher - Kircher Engineering, LLC
+ * Copyright (C) 2013-2015, Kaleb Kircher - Kircher Engineering, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,75 +55,62 @@ import com.kircherelectronics.gyroscopeexplorer.sensor.listener.FusedGyroscopeSe
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-public class GyroscopeActivity extends Activity implements SensorEventListener,
-		FusedGyroscopeSensorListener
+/**
+ * The main activity displays the orientation estimated by the sensor(s) and
+ * provides an interface for the user to modify settings, reset or view help.
+ * 
+ * @author Kaleb
+ *
+ */
+public class GyroscopeActivity extends Activity implements Runnable
 {
-
-	public static final float EPSILON = 0.000000001f;
-
 	private static final String tag = GyroscopeActivity.class.getSimpleName();
-	private static final float NS2S = 1.0f / 1000000000.0f;
-	private static final int MEAN_FILTER_WINDOW = 10;
-	private static final int MIN_SAMPLE_COUNT = 30;
 
-	private boolean hasInitialOrientation = false;
-	private boolean stateInitializedCalibrated = false;
-	private boolean stateInitializedRaw = false;
+	// Indicate if the output should be logged to a .csv file
+	private boolean logData = false;
+	private boolean dataReady = false;
 
-	private boolean useFusedEstimation = false;
-	private boolean useRadianUnits = false;
+	private boolean imuOCfOrienationEnabled;
+	private boolean imuOCfRotationMatrixEnabled;
+	private boolean imuOCfQuaternionEnabled;
+	private boolean imuOKfQuaternionEnabled;
+	private boolean isCalibrated;
+	private boolean gyroscopeAvailable;
+
+	private float[] vOrientation = new float[3];
+
+	// The generation of the log output
+	private int generation = 0;
+
+	// Log output time stamp
+	private long logTime = 0;
 
 	// The gauge views. Note that these are views and UI hogs since they run in
 	// the UI thread, not ideal, but easy to use.
 	private GaugeBearing gaugeBearingCalibrated;
-	private GaugeBearing gaugeBearingRaw;
 	private GaugeRotation gaugeTiltCalibrated;
-	private GaugeRotation gaugeTiltRaw;
 
-	private DecimalFormat df;
+	// Handler for the UI plots so everything plots smoothly
+	protected Handler handler;
 
-	// Calibrated maths.
-	private float[] currentRotationMatrixCalibrated;
-	private float[] deltaRotationMatrixCalibrated;
-	private float[] deltaRotationVectorCalibrated;
-	private float[] gyroscopeOrientationCalibrated;
+	private Orientation orientation;
 
-	// Uncalibrated maths
-	private float[] currentRotationMatrixRaw;
-	private float[] deltaRotationMatrixRaw;
-	private float[] deltaRotationVectorRaw;
-	private float[] gyroscopeOrientationRaw;
+	protected Runnable runable;
 
-	// accelerometer and magnetometer based rotation matrix
-	private float[] initialRotationMatrix;
+	// Acceleration plot titles
+	private String plotAccelXAxisTitle = "Azimuth";
+	private String plotAccelYAxisTitle = "Pitch";
+	private String plotAccelZAxisTitle = "Roll";
 
-	// accelerometer vector
-	private float[] acceleration;
+	// Output log
+	private String log;
 
-	// magnetic field vector
-	private float[] magnetic;
+	private TextView tvXAxis;
+	private TextView tvYAxis;
+	private TextView tvZAxis;
+	private TextView tvStatus;
 
-	private FusedGyroscopeSensor fusedGyroscopeSensor;
-
-	private int accelerationSampleCount = 0;
-	private int magneticSampleCount = 0;
-
-	private long timestampOldCalibrated = 0;
-	private long timestampOldRaw = 0;
-
-	private MeanFilter accelerationFilter;
-	private MeanFilter magneticFilter;
-
-	// We need the SensorManager to register for Sensor Events.
-	private SensorManager sensorManager;
-
-	private TextView xAxisRaw;
-	private TextView yAxisRaw;
-	private TextView zAxisRaw;
-
-	private TextView xAxisCalibrated;
-	private TextView yAxisCalibrated;
-	private TextView zAxisCalibrated;
+	private Thread thread;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -127,9 +120,8 @@ public class GyroscopeActivity extends Activity implements SensorEventListener,
 		setContentView(R.layout.activity_gyroscope);
 
 		initUI();
-		initMaths();
-		initSensors();
-		initFilters();
+
+		gyroscopeAvailable = gyroscopeAvailable();
 	};
 
 	@Override
@@ -152,8 +144,7 @@ public class GyroscopeActivity extends Activity implements SensorEventListener,
 
 		// Reset everything
 		case R.id.action_reset:
-			reset();
-			restart();
+			orientation.reset();
 			return true;
 
 			// Reset everything
@@ -161,6 +152,11 @@ public class GyroscopeActivity extends Activity implements SensorEventListener,
 			Intent intent = new Intent();
 			intent.setClass(this, ConfigActivity.class);
 			startActivity(intent);
+			return true;
+
+			// Reset everything
+		case R.id.action_help:
+			showHelpDialog();
 			return true;
 
 		default:
@@ -173,381 +169,143 @@ public class GyroscopeActivity extends Activity implements SensorEventListener,
 		super.onResume();
 
 		readPrefs();
+		reset();
 
-		restart();
+		orientation.onResume();
+
+		handler.post(runable);
 	}
 
 	public void onPause()
 	{
 		super.onPause();
 
-		reset();
+		orientation.onPause();
+
+		handler.removeCallbacks(runable);
 	}
 
+	/**
+	 * Output and logs are run on their own thread to keep the UI from hanging
+	 * and the output smooth.
+	 */
 	@Override
-	public void onSensorChanged(SensorEvent event)
+	public void run()
 	{
-		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+		while (logData && !Thread.currentThread().isInterrupted())
 		{
-			onAccelerationSensorChanged(event.values, event.timestamp);
+			logData();
 		}
 
-		if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
-		{
-			onMagneticSensorChanged(event.values, event.timestamp);
-		}
-
-		if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE)
-		{
-			onGyroscopeSensorChanged(event.values, event.timestamp);
-		}
-
-		if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE_UNCALIBRATED)
-		{
-			onGyroscopeSensorUncalibratedChanged(event.values, event.timestamp);
-		}
+		Thread.currentThread().interrupt();
 	}
 
-	@Override
-	public void onAngularVelocitySensorChanged(float[] angularVelocity,
-			long timeStamp)
+	private boolean getPrefCalibratedGyroscopeEnabled()
 	{
-		gaugeBearingCalibrated.updateBearing(angularVelocity[0]);
-		gaugeTiltCalibrated.updateRotation(angularVelocity);
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
 
-		TextView status = (TextView) this
-				.findViewById(R.id.label_calibrated_status);
-		status.setText(R.string.sensor_active);
-
-		int color = getResources().getColor(R.color.light_green);
-
-		status.setTextColor(color);
-
-		if (useRadianUnits)
-		{
-			xAxisCalibrated.setText(df.format(angularVelocity[0]));
-			yAxisCalibrated.setText(df.format(angularVelocity[1]));
-			zAxisCalibrated.setText(df.format(angularVelocity[2]));
-		}
-		else
-		{
-			xAxisCalibrated.setText(df.format(Math
-					.toDegrees(angularVelocity[0])));
-			yAxisCalibrated.setText(df.format(Math
-					.toDegrees(angularVelocity[1])));
-			zAxisCalibrated.setText(df.format(Math
-					.toDegrees(angularVelocity[2])));
-		}
+		return prefs.getBoolean(
+				ConfigActivity.CALIBRATED_GYROSCOPE_ENABLED_KEY, true);
 	}
 
-	public void onAccelerationSensorChanged(float[] acceleration, long timeStamp)
+	private boolean getPrefImuOCfOrientationEnabled()
 	{
-		// Get a local copy of the raw magnetic values from the device sensor.
-		System.arraycopy(acceleration, 0, this.acceleration, 0,
-				acceleration.length);
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
 
-		// Use a mean filter to smooth the sensor inputs
-		this.acceleration = accelerationFilter.filterFloat(this.acceleration);
-
-		// Count the number of samples received.
-		accelerationSampleCount++;
-
-		// Only determine the initial orientation after the acceleration sensor
-		// and magnetic sensor have had enough time to be smoothed by the mean
-		// filters. Also, only do this if the orientation hasn't already been
-		// determined since we only need it once.
-		if (accelerationSampleCount > MIN_SAMPLE_COUNT
-				&& magneticSampleCount > MIN_SAMPLE_COUNT
-				&& !hasInitialOrientation)
-		{
-			calculateOrientation();
-		}
+		return prefs.getBoolean(ConfigActivity.IMUOCF_ORIENTATION_ENABLED_KEY,
+				false);
 	}
 
-	public void onGyroscopeSensorChanged(float[] gyroscope, long timestamp)
+	private boolean getPrefImuOCfRotationMatrixEnabled()
 	{
-		// don't start until first accelerometer/magnetometer orientation has
-		// been acquired
-		if (!hasInitialOrientation)
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
+
+		return prefs.getBoolean(
+				ConfigActivity.IMUOCF_ROTATION_MATRIX_ENABLED_KEY, false);
+	}
+
+	private boolean getPrefImuOCfQuaternionEnabled()
+	{
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
+
+		return prefs.getBoolean(ConfigActivity.IMUOCF_QUATERNION_ENABLED_KEY,
+				false);
+	}
+
+	private boolean getPrefImuOKfQuaternionEnabled()
+	{
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
+
+		return prefs.getBoolean(ConfigActivity.IMUOKF_QUATERNION_ENABLED_KEY,
+				false);
+	}
+
+	private float getPrefImuOCfOrienationCoeff()
+	{
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
+
+		return Float.valueOf(prefs.getString(
+				ConfigActivity.IMUOCF_ORIENTATION_COEFF_KEY, "0.5"));
+	}
+
+	private float getPrefImuOCfRotationMatrixCoeff()
+	{
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
+
+		return Float.valueOf(prefs.getString(
+				ConfigActivity.IMUOCF_ROTATION_MATRIX_COEFF_KEY, "0.5"));
+	}
+
+	private float getPrefImuOCfQuaternionCoeff()
+	{
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
+
+		return Float.valueOf(prefs.getString(
+				ConfigActivity.IMUOCF_QUATERNION_COEFF_KEY, "0.5"));
+	}
+
+	private boolean gyroscopeAvailable()
+	{
+		return getPackageManager().hasSystemFeature(
+				PackageManager.FEATURE_SENSOR_GYROSCOPE);
+	}
+
+	private void initStartButton()
+	{
+		final Button button = (Button) findViewById(R.id.button_start);
+
+		button.setOnClickListener(new View.OnClickListener()
 		{
-			return;
-		}
-
-		// Initialization of the gyroscope based rotation matrix
-		if (!stateInitializedCalibrated)
-		{
-			currentRotationMatrixCalibrated = matrixMultiplication(
-					currentRotationMatrixCalibrated, initialRotationMatrix);
-
-			stateInitializedCalibrated = true;
-
-			TextView status = (TextView) this
-					.findViewById(R.id.label_calibrated_status);
-			status.setText(R.string.sensor_active);
-
-			int color = getResources().getColor(R.color.light_green);
-
-			status.setTextColor(color);
-		}
-
-		// This timestep's delta rotation to be multiplied by the current
-		// rotation after computing it from the gyro sample data.
-		if (timestampOldCalibrated != 0 && stateInitializedCalibrated)
-		{
-			final float dT = (timestamp - timestampOldCalibrated) * NS2S;
-
-			// Axis of the rotation sample, not normalized yet.
-			float axisX = gyroscope[0];
-			float axisY = gyroscope[1];
-			float axisZ = gyroscope[2];
-
-			// Calculate the angular speed of the sample
-			float omegaMagnitude = (float) Math.sqrt(axisX * axisX + axisY
-					* axisY + axisZ * axisZ);
-
-			// Normalize the rotation vector if it's big enough to get the axis
-			if (omegaMagnitude > EPSILON)
+			public void onClick(View v)
 			{
-				axisX /= omegaMagnitude;
-				axisY /= omegaMagnitude;
-				axisZ /= omegaMagnitude;
+				if (!logData)
+				{
+					button.setBackgroundResource(R.drawable.stop_button_background);
+					button.setText("Stop Log");
+
+					startDataLog();
+
+					thread = new Thread(GyroscopeActivity.this);
+
+					thread.start();
+				}
+				else
+				{
+					button.setBackgroundResource(R.drawable.start_button_background);
+					button.setText("Start Log");
+
+					stopDataLog();
+				}
 			}
-
-			// Integrate around this axis with the angular speed by the timestep
-			// in order to get a delta rotation from this sample over the
-			// timestep. We will convert this axis-angle representation of the
-			// delta rotation into a quaternion before turning it into the
-			// rotation matrix.
-			float thetaOverTwo = omegaMagnitude * dT / 2.0f;
-
-			float sinThetaOverTwo = (float) Math.sin(thetaOverTwo);
-			float cosThetaOverTwo = (float) Math.cos(thetaOverTwo);
-
-			deltaRotationVectorCalibrated[0] = sinThetaOverTwo * axisX;
-			deltaRotationVectorCalibrated[1] = sinThetaOverTwo * axisY;
-			deltaRotationVectorCalibrated[2] = sinThetaOverTwo * axisZ;
-			deltaRotationVectorCalibrated[3] = cosThetaOverTwo;
-
-			SensorManager.getRotationMatrixFromVector(
-					deltaRotationMatrixCalibrated,
-					deltaRotationVectorCalibrated);
-
-			currentRotationMatrixCalibrated = matrixMultiplication(
-					currentRotationMatrixCalibrated,
-					deltaRotationMatrixCalibrated);
-
-			SensorManager.getOrientation(currentRotationMatrixCalibrated,
-					gyroscopeOrientationCalibrated);
-		}
-
-		timestampOldCalibrated = timestamp;
-
-		gaugeBearingCalibrated.updateBearing(gyroscopeOrientationCalibrated[0]);
-		gaugeTiltCalibrated.updateRotation(gyroscopeOrientationCalibrated);
-
-		if (useRadianUnits)
-		{
-			xAxisCalibrated.setText(df
-					.format(gyroscopeOrientationCalibrated[0]));
-			yAxisCalibrated.setText(df
-					.format(gyroscopeOrientationCalibrated[1]));
-			zAxisCalibrated.setText(df
-					.format(gyroscopeOrientationCalibrated[2]));
-		}
-		else
-		{
-			xAxisCalibrated.setText(df.format(Math
-					.toDegrees(gyroscopeOrientationCalibrated[0])));
-			yAxisCalibrated.setText(df.format(Math
-					.toDegrees(gyroscopeOrientationCalibrated[1])));
-			zAxisCalibrated.setText(df.format(Math
-					.toDegrees(gyroscopeOrientationCalibrated[2])));
-		}
-	}
-
-	public void onGyroscopeSensorUncalibratedChanged(float[] gyroscope,
-			long timestamp)
-	{
-		// don't start until first accelerometer/magnetometer orientation has
-		// been acquired
-		if (!hasInitialOrientation)
-		{
-			return;
-		}
-
-		// Initialization of the gyroscope based rotation matrix
-		if (!stateInitializedRaw)
-		{
-			currentRotationMatrixRaw = matrixMultiplication(
-					currentRotationMatrixRaw, initialRotationMatrix);
-
-			stateInitializedRaw = true;
-
-			TextView status = (TextView) this
-					.findViewById(R.id.label_uncalibrated_status);
-			status.setText(R.string.sensor_active);
-
-			int color = getResources().getColor(R.color.light_green);
-
-			status.setTextColor(color);
-		}
-
-		// This timestep's delta rotation to be multiplied by the current
-		// rotation after computing it from the gyro sample data.
-		if (timestampOldRaw != 0 && stateInitializedRaw)
-		{
-			final float dT = (timestamp - timestampOldRaw) * NS2S;
-
-			// Axis of the rotation sample, not normalized yet.
-			float axisX = gyroscope[0];
-			float axisY = gyroscope[1];
-			float axisZ = gyroscope[2];
-
-			// Calculate the angular speed of the sample
-			float omegaMagnitude = (float) Math.sqrt(axisX * axisX + axisY
-					* axisY + axisZ * axisZ);
-
-			// Normalize the rotation vector if it's big enough to get the axis
-			if (omegaMagnitude > EPSILON)
-			{
-				axisX /= omegaMagnitude;
-				axisY /= omegaMagnitude;
-				axisZ /= omegaMagnitude;
-			}
-
-			// Integrate around this axis with the angular speed by the timestep
-			// in order to get a delta rotation from this sample over the
-			// timestep. We will convert this axis-angle representation of the
-			// delta rotation into a quaternion before turning it into the
-			// rotation matrix.
-			float thetaOverTwo = omegaMagnitude * dT / 2.0f;
-
-			float sinThetaOverTwo = (float) Math.sin(thetaOverTwo);
-			float cosThetaOverTwo = (float) Math.cos(thetaOverTwo);
-
-			deltaRotationVectorRaw[0] = sinThetaOverTwo * axisX;
-			deltaRotationVectorRaw[1] = sinThetaOverTwo * axisY;
-			deltaRotationVectorRaw[2] = sinThetaOverTwo * axisZ;
-			deltaRotationVectorRaw[3] = cosThetaOverTwo;
-
-			SensorManager.getRotationMatrixFromVector(deltaRotationMatrixRaw,
-					deltaRotationVectorRaw);
-
-			currentRotationMatrixRaw = matrixMultiplication(
-					currentRotationMatrixRaw, deltaRotationMatrixRaw);
-
-			SensorManager.getOrientation(currentRotationMatrixRaw,
-					gyroscopeOrientationRaw);
-		}
-
-		timestampOldRaw = timestamp;
-
-		gaugeBearingRaw.updateBearing(gyroscopeOrientationRaw[0]);
-		gaugeTiltRaw.updateRotation(gyroscopeOrientationRaw);
-
-		if (useRadianUnits)
-		{
-			xAxisRaw.setText(df.format(gyroscopeOrientationRaw[0]));
-			yAxisRaw.setText(df.format(gyroscopeOrientationRaw[1]));
-			zAxisRaw.setText(df.format(gyroscopeOrientationRaw[2]));
-		}
-		else
-		{
-			xAxisRaw.setText(df.format(Math
-					.toDegrees(gyroscopeOrientationRaw[0])));
-			yAxisRaw.setText(df.format(Math
-					.toDegrees(gyroscopeOrientationRaw[1])));
-			zAxisRaw.setText(df.format(Math
-					.toDegrees(gyroscopeOrientationRaw[2])));
-		}
-	}
-
-	public void onMagneticSensorChanged(float[] magnetic, long timeStamp)
-	{
-		// Get a local copy of the raw magnetic values from the device sensor.
-		System.arraycopy(magnetic, 0, this.magnetic, 0, magnetic.length);
-
-		// Use a mean filter to smooth the sensor inputs
-		this.magnetic = magneticFilter.filterFloat(this.magnetic);
-
-		// Count the number of samples received.
-		magneticSampleCount++;
-	}
-
-	/**
-	 * Calculates orientation angles from accelerometer and magnetometer output.
-	 * Note that we only use this *once* at the beginning to orient the
-	 * gyroscope to earth frame. If you do not call this, the gyroscope will
-	 * orient itself to whatever the relative orientation the device is in at
-	 * the time of initialization.
-	 */
-	private void calculateOrientation()
-	{
-		hasInitialOrientation = SensorManager.getRotationMatrix(
-				initialRotationMatrix, null, acceleration, magnetic);
-
-		// Remove the sensor observers since they are no longer required.
-		if (hasInitialOrientation)
-		{
-			sensorManager.unregisterListener(this,
-					sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
-			sensorManager.unregisterListener(this,
-					sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD));
-		}
-	}
-
-	/**
-	 * Initialize the mean filters.
-	 */
-	private void initFilters()
-	{
-		accelerationFilter = new MeanFilter();
-		accelerationFilter.setWindowSize(MEAN_FILTER_WINDOW);
-
-		magneticFilter = new MeanFilter();
-		magneticFilter.setWindowSize(MEAN_FILTER_WINDOW);
-	}
-
-	/**
-	 * Initialize the data structures required for the maths.
-	 */
-	private void initMaths()
-	{
-		acceleration = new float[3];
-		magnetic = new float[3];
-
-		initialRotationMatrix = new float[9];
-
-		deltaRotationVectorCalibrated = new float[4];
-		deltaRotationMatrixCalibrated = new float[9];
-		currentRotationMatrixCalibrated = new float[9];
-		gyroscopeOrientationCalibrated = new float[3];
-
-		// Initialize the current rotation matrix as an identity matrix...
-		currentRotationMatrixCalibrated[0] = 1.0f;
-		currentRotationMatrixCalibrated[4] = 1.0f;
-		currentRotationMatrixCalibrated[8] = 1.0f;
-
-		deltaRotationVectorRaw = new float[4];
-		deltaRotationMatrixRaw = new float[9];
-		currentRotationMatrixRaw = new float[9];
-		gyroscopeOrientationRaw = new float[3];
-
-		// Initialize the current rotation matrix as an identity matrix...
-		currentRotationMatrixRaw[0] = 1.0f;
-		currentRotationMatrixRaw[4] = 1.0f;
-		currentRotationMatrixRaw[8] = 1.0f;
-	}
-
-	/**
-	 * Initialize the sensors.
-	 */
-	private void initSensors()
-	{
-		sensorManager = (SensorManager) this
-				.getSystemService(Context.SENSOR_SERVICE);
-
-		fusedGyroscopeSensor = new FusedGyroscopeSensor();
+		});
 	}
 
 	/**
@@ -555,210 +313,157 @@ public class GyroscopeActivity extends Activity implements SensorEventListener,
 	 */
 	private void initUI()
 	{
-		// Get a decimal formatter for the text views
-		df = new DecimalFormat("#.##");
-
-		// Initialize the raw (uncalibrated) text views
-		xAxisRaw = (TextView) this.findViewById(R.id.value_x_axis_raw);
-		yAxisRaw = (TextView) this.findViewById(R.id.value_y_axis_raw);
-		zAxisRaw = (TextView) this.findViewById(R.id.value_z_axis_raw);
-
 		// Initialize the calibrated text views
-		xAxisCalibrated = (TextView) this
-				.findViewById(R.id.value_x_axis_calibrated);
-		yAxisCalibrated = (TextView) this
-				.findViewById(R.id.value_y_axis_calibrated);
-		zAxisCalibrated = (TextView) this
-				.findViewById(R.id.value_z_axis_calibrated);
-
-		// Initialize the raw (uncalibrated) gauge views
-		gaugeBearingRaw = (GaugeBearing) findViewById(R.id.gauge_bearing_raw);
-		gaugeTiltRaw = (GaugeRotation) findViewById(R.id.gauge_tilt_raw);
+		tvXAxis = (TextView) this.findViewById(R.id.value_x_axis_calibrated);
+		tvYAxis = (TextView) this.findViewById(R.id.value_y_axis_calibrated);
+		tvZAxis = (TextView) this.findViewById(R.id.value_z_axis_calibrated);
+		tvStatus = (TextView) this.findViewById(R.id.label_sensor_status);
 
 		// Initialize the calibrated gauges views
 		gaugeBearingCalibrated = (GaugeBearing) findViewById(R.id.gauge_bearing_calibrated);
 		gaugeTiltCalibrated = (GaugeRotation) findViewById(R.id.gauge_tilt_calibrated);
+
+		initStartButton();
 	}
 
 	/**
-	 * Multiply matrix a by b. Android gives us matrices results in
-	 * one-dimensional arrays instead of two, so instead of using some (O)2 to
-	 * transfer to a two-dimensional array and then an (O)3 algorithm to
-	 * multiply, we just use a static linear time method.
-	 * 
-	 * @param a
-	 * @param b
-	 * @return a*b
+	 * Log output data to an external .csv file.
 	 */
-	private float[] matrixMultiplication(float[] a, float[] b)
+	private void logData()
 	{
-		float[] result = new float[9];
+		if (logData)
+		{
+			if (generation == 0)
+			{
+				logTime = System.currentTimeMillis();
+			}
 
-		result[0] = a[0] * b[0] + a[1] * b[3] + a[2] * b[6];
-		result[1] = a[0] * b[1] + a[1] * b[4] + a[2] * b[7];
-		result[2] = a[0] * b[2] + a[1] * b[5] + a[2] * b[8];
+			log += generation++ + ",";
 
-		result[3] = a[3] * b[0] + a[4] * b[3] + a[5] * b[6];
-		result[4] = a[3] * b[1] + a[4] * b[4] + a[5] * b[7];
-		result[5] = a[3] * b[2] + a[4] * b[5] + a[5] * b[8];
+			log += String.format("%.2f",
+					(System.currentTimeMillis() - logTime) / 1000.0f) + ",";
 
-		result[6] = a[6] * b[0] + a[7] * b[3] + a[8] * b[6];
-		result[7] = a[6] * b[1] + a[7] * b[4] + a[8] * b[7];
-		result[8] = a[6] * b[2] + a[7] * b[5] + a[8] * b[8];
+			log += vOrientation[0] + ",";
+			log += vOrientation[1] + ",";
+			log += vOrientation[2] + ",";
 
-		return result;
+			log += System.getProperty("line.separator");
+
+			dataReady = false;
+		}
 	}
 
-	/**
-	 * Restarts all of the sensor observers and resets the activity to the
-	 * initial state. This should only be called *after* a call to reset().
-	 */
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-	private void restart()
+	private void reset()
 	{
-		sensorManager.registerListener(this,
-				sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-				SensorManager.SENSOR_DELAY_FASTEST);
+		isCalibrated = getPrefCalibratedGyroscopeEnabled();
 
-		sensorManager.registerListener(this,
-				sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
-				SensorManager.SENSOR_DELAY_FASTEST);
+		orientation = new GyroscopeOrientation(this);
 
-		// Do not register for gyroscope updates if we are going to use the
-		// fused version of the sensor...
-		if (!useFusedEstimation)
+		if (isCalibrated)
 		{
-			boolean enabled = sensorManager.registerListener(this,
-					sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
-					SensorManager.SENSOR_DELAY_FASTEST);
-
-			if (!enabled)
-			{
-				showGyroscopeNotAvailableAlert();
-			}
-		}
-
-		if (Utils.hasKitKat())
-		{
-			sensorManager.registerListener(this, sensorManager
-					.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED),
-					SensorManager.SENSOR_DELAY_FASTEST);
-		}
-
-		// If we want to use the fused version of the gyroscope sensor.
-		if (useFusedEstimation)
-		{
-			boolean hasGravity = sensorManager.registerListener(
-					fusedGyroscopeSensor,
-					sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY),
-					SensorManager.SENSOR_DELAY_FASTEST);
-
-			// If for some reason the gravity sensor does not exist, fall back
-			// onto the acceleration sensor.
-			if (!hasGravity)
-			{
-				sensorManager.registerListener(fusedGyroscopeSensor,
-						sensorManager
-								.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-						SensorManager.SENSOR_DELAY_FASTEST);
-			}
-
-			sensorManager.registerListener(fusedGyroscopeSensor,
-					sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
-					SensorManager.SENSOR_DELAY_FASTEST);
-
-			boolean enabled = sensorManager.registerListener(
-					fusedGyroscopeSensor,
-					sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
-					SensorManager.SENSOR_DELAY_FASTEST);
-
-			if (!enabled)
-			{
-				showGyroscopeNotAvailableAlert();
-			}
-
-			TextView label = (TextView) this
-					.findViewById(R.id.label_calibrated_filter_name);
-			label.setText("Fused"
-					+ getResources().getString(R.string.sensor_calibrated_name));
-
-			fusedGyroscopeSensor.registerObserver(this);
+			tvStatus.setText("Sensor Calibrated");
 		}
 		else
 		{
-			TextView label = (TextView) this
-					.findViewById(R.id.label_calibrated_filter_name);
-			label.setText(getResources().getString(
-					R.string.sensor_calibrated_name));
+			tvStatus.setText("Sensor Uncalibrated");
 		}
-	}
 
-	/**
-	 * Removes all of the sensor observers and resets the activity to the
-	 * initial state.
-	 */
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-	private void reset()
-	{
-		sensorManager.unregisterListener(this,
-				sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
-
-		sensorManager.unregisterListener(this,
-				sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD));
-
-		if (!useFusedEstimation)
+		if (imuOCfOrienationEnabled)
 		{
-			sensorManager.unregisterListener(this,
-					sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE));
-		}
+			orientation = new ImuOCfOrientation(this);
+			orientation.setFilterCoefficient(getPrefImuOCfOrienationCoeff());
 
-		if (Utils.hasKitKat())
+			if (isCalibrated)
+			{
+				tvStatus.setText("ImuOCfOrientation Calibrated");
+			}
+			else
+			{
+				tvStatus.setText("ImuOCfOrientation Uncalibrated");
+			}
+
+		}
+		if (imuOCfRotationMatrixEnabled)
 		{
-			sensorManager.unregisterListener(this, sensorManager
-					.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED));
-		}
+			orientation = new ImuOCfRotationMatrix(this);
+			orientation
+					.setFilterCoefficient(getPrefImuOCfRotationMatrixCoeff());
 
-		if (useFusedEstimation)
+			if (isCalibrated)
+			{
+				tvStatus.setText("ImuOCfRm Calibrated");
+			}
+			else
+			{
+				tvStatus.setText("ImuOCfRm Uncalibrated");
+			}
+		}
+		if (imuOCfQuaternionEnabled)
 		{
-			sensorManager.unregisterListener(fusedGyroscopeSensor,
-					sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY));
+			orientation = new ImuOCfQuaternion(this);
+			orientation.setFilterCoefficient(getPrefImuOCfQuaternionCoeff());
 
-			sensorManager.unregisterListener(fusedGyroscopeSensor,
-					sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
+			if (isCalibrated)
+			{
+				tvStatus.setText("ImuOCfQuaternion Calibrated");
+			}
+			else
+			{
+				tvStatus.setText("ImuOCfQuaternion Uncalibrated");
+			}
+		}
+		if (imuOKfQuaternionEnabled)
+		{
+			orientation = new ImuOKfQuaternion(this);
 
-			sensorManager.unregisterListener(fusedGyroscopeSensor,
-					sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD));
-
-			sensorManager.unregisterListener(fusedGyroscopeSensor,
-					sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE));
-
-			fusedGyroscopeSensor.removeObserver(this);
+			if (isCalibrated)
+			{
+				tvStatus.setText("ImuOKfQuaternion Calibrated");
+			}
+			else
+			{
+				tvStatus.setText("ImuOKfQuaternion Uncalibrated");
+			}
 		}
 
-		initMaths();
+		if (gyroscopeAvailable)
+		{
+			tvStatus.setTextColor(this.getResources().getColor(
+					R.color.light_green));
+		}
+		else
+		{
+			tvStatus.setTextColor(this.getResources().getColor(
+					R.color.light_red));
 
-		accelerationSampleCount = 0;
-		magneticSampleCount = 0;
+			showGyroscopeNotAvailableAlert();
+		}
 
-		hasInitialOrientation = false;
-		stateInitializedCalibrated = false;
-		stateInitializedRaw = false;
+		handler = new Handler();
+
+		runable = new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				handler.postDelayed(this, 100);
+
+				vOrientation = orientation.getOrientation();
+
+				dataReady = true;
+
+				updateText();
+				updateGauges();
+			}
+		};
 	}
 
 	private void readPrefs()
 	{
-		SharedPreferences prefs = PreferenceManager
-				.getDefaultSharedPreferences(this);
-
-		useFusedEstimation = prefs.getBoolean(ConfigActivity.FUSION_PREFERENCE,
-				false);
-
-		useRadianUnits = prefs
-				.getBoolean(ConfigActivity.UNITS_PREFERENCE, true);
-
-		Log.d(tag, "Fusion: " + String.valueOf(useFusedEstimation));
-
-		Log.d(tag, "Units Radians: " + String.valueOf(useRadianUnits));
+		imuOCfOrienationEnabled = getPrefImuOCfOrientationEnabled();
+		imuOCfRotationMatrixEnabled = getPrefImuOCfRotationMatrixEnabled();
+		imuOCfQuaternionEnabled = getPrefImuOCfQuaternionEnabled();
+		imuOKfQuaternionEnabled = getPrefImuOKfQuaternionEnabled();
 	}
 
 	private void showGyroscopeNotAvailableAlert()
@@ -771,7 +476,7 @@ public class GyroscopeActivity extends Activity implements SensorEventListener,
 		// set dialog message
 		alertDialogBuilder
 				.setMessage(
-						"Your device is not equipped with a gyroscope or it is not responding...")
+						"Your device is not equipped with a gyroscope or it is not responding. This is *NOT* a problem with the app, it is problem with your device.")
 				.setCancelable(false)
 				.setNegativeButton("I'll look around...",
 						new DialogInterface.OnClickListener()
@@ -791,10 +496,151 @@ public class GyroscopeActivity extends Activity implements SensorEventListener,
 		alertDialog.show();
 	}
 
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy)
+	private void showHelpDialog()
 	{
-		// TODO Auto-generated method stub
+		Dialog helpDialog = new Dialog(this);
 
+		helpDialog.setCancelable(true);
+		helpDialog.setCanceledOnTouchOutside(true);
+		helpDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+		View view = getLayoutInflater()
+				.inflate(R.layout.layout_help_home, null);
+
+		helpDialog.setContentView(view);
+
+		helpDialog.show();
 	}
+
+	/**
+	 * Begin logging data to an external .csv file.
+	 */
+	private void startDataLog()
+	{
+		if (logData == false)
+		{
+			generation = 0;
+
+			CharSequence text = "Logging Data";
+			int duration = Toast.LENGTH_SHORT;
+
+			Toast toast = Toast.makeText(this, text, duration);
+			toast.show();
+
+			String headers = "Generation" + ",";
+
+			headers += "Timestamp" + ",";
+
+			headers += this.plotAccelXAxisTitle + ",";
+
+			headers += this.plotAccelYAxisTitle + ",";
+
+			headers += this.plotAccelZAxisTitle + ",";
+
+			log = headers;
+
+			log += System.getProperty("line.separator");
+
+			logData = true;
+		}
+	}
+
+	private void stopDataLog()
+	{
+		if (logData)
+		{
+			writeLogToFile();
+		}
+
+		if (logData && thread != null)
+		{
+			logData = false;
+
+			thread.interrupt();
+
+			thread = null;
+		}
+	}
+
+	private void updateText()
+	{
+		tvXAxis.setText(String.format("%.2f", vOrientation[0]));
+		tvYAxis.setText(String.format("%.2f", vOrientation[1]));
+		tvZAxis.setText(String.format("%.2f", vOrientation[2]));
+	}
+
+	private void updateGauges()
+	{
+		gaugeBearingCalibrated.updateBearing(vOrientation[0]);
+		gaugeTiltCalibrated.updateRotation(vOrientation);
+	}
+
+	/**
+	 * Write the logged data out to a persisted file.
+	 */
+	private void writeLogToFile()
+	{
+		Calendar c = Calendar.getInstance();
+		String filename = "GyroscopeExplorer-" + c.get(Calendar.YEAR) + "-"
+				+ (c.get(Calendar.MONTH) + 1) + "-"
+				+ c.get(Calendar.DAY_OF_MONTH) + "-" + c.get(Calendar.HOUR)
+				+ "-" + c.get(Calendar.MINUTE) + "-" + c.get(Calendar.SECOND)
+				+ ".csv";
+
+		File dir = new File(Environment.getExternalStorageDirectory()
+				+ File.separator + "GyroscopeExplorer" + File.separator
+				+ "Logs");
+		if (!dir.exists())
+		{
+			dir.mkdirs();
+		}
+
+		File file = new File(dir, filename);
+
+		FileOutputStream fos;
+		byte[] data = log.getBytes();
+		try
+		{
+			fos = new FileOutputStream(file);
+			fos.write(data);
+			fos.flush();
+			fos.close();
+
+			CharSequence text = "Log Saved";
+			int duration = Toast.LENGTH_SHORT;
+
+			Toast toast = Toast.makeText(this, text, duration);
+			toast.show();
+		}
+		catch (FileNotFoundException e)
+		{
+			CharSequence text = e.toString();
+			int duration = Toast.LENGTH_SHORT;
+
+			Toast toast = Toast.makeText(this, text, duration);
+			toast.show();
+		}
+		catch (IOException e)
+		{
+			// handle exception
+		}
+		finally
+		{
+			// Update the MediaStore so we can view the file without rebooting.
+			// Note that it appears that the ACTION_MEDIA_MOUNTED approach is
+			// now blocked for non-system apps on Android 4.4.
+			MediaScannerConnection.scanFile(this, new String[]
+			{ file.getPath() }, null,
+					new MediaScannerConnection.OnScanCompletedListener()
+					{
+						@Override
+						public void onScanCompleted(final String path,
+								final Uri uri)
+						{
+
+						}
+					});
+		}
+	}
+
 }

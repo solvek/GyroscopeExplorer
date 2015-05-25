@@ -7,18 +7,20 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.RadialGradient;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Typeface;
+import android.graphics.PorterDuff.Mode;
 import android.hardware.SensorManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
 /*
- * Low-Pass Linear Acceleration
- * Copyright (C) 2013-2014, Kaleb Kircher - Kircher Engineering, LLC
+ * Gyroscope Explorer
+ * Copyright (C) 2013-2015, Kaleb Kircher - Kircher Engineering, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,13 +69,6 @@ public final class GaugeRotation extends View
 	 */
 
 	/*
-	 * Developer Note: TextureView can only be used in a hardware accelerated
-	 * window. When rendered in software, TextureView will draw nothing! On
-	 * Android 3.0 devices this means a manifest declaration. On older devices,
-	 * other implementations than TetureView will be required.
-	 */
-
-	/*
 	 * Developer Note: There are some things to keep in mind when it comes to
 	 * Android and hardware acceleration. What we see in Android 4.0 is “full”
 	 * hardware acceleration. All UI elements in windows, and third-party apps
@@ -102,13 +97,8 @@ public final class GaugeRotation extends View
 
 	private static final String tag = GaugeRotation.class.getSimpleName();
 
-	// drawing tools
-	private RectF rimOuterRect;
-	private RectF rimTopRect;
-	private RectF rimBottomRect;
-	private RectF rimLeftRect;
-	private RectF rimRightRect;
-	private Paint rimOuterPaint;
+	// Keep track of the rotation of the device
+	private float[] rotation = new float[3];
 
 	// Keep static bitmaps of the gauge so we only have to redraw if we have to
 	// Static bitmap for the bezel of the gauge
@@ -116,44 +106,18 @@ public final class GaugeRotation extends View
 	// Static bitmap for the face of the gauge
 	private Bitmap faceBitmap;
 
-	// Keep track of the rotation of the device
-	private float[] rotation = new float[3];
-
-	// Rectangle to draw the earth section of the gauge face
-	private RectF earthRect;
-	// Rectangle to draw the face of the gauge
-	private RectF faceRect;
-	// Rectangle to draw the rim of the gauge
-	private RectF rimRect;
-	// Rectangle to draw the sky section of the gauge face
-	private RectF skyRect;
-	// Rectangle to draw the sky section of the gauge face
-	private RectF skyBackgroundRect;
-
-	// Paint to draw the red arrow for the roll angle scales
-	private Paint arrowPaint;
-	// Paint to draw the gauge bitmaps
 	private Paint backgroundPaint;
-	// Paint to draw the earth portion of the gauge face
-	private Paint earthPaint;
-	// Paint to draw the bitmap for the pitch angle scale's guide gauge
-	private Paint gaugeGuidePaint;
-	// Paint to draw numbers
-	private Paint numericPaint;
-	// Paint to draw the outer rim of the bezel
-	private Paint rimCirclePaint;
-	// Paint to draw the rim of the bezel
+	private Paint rimOuterPaint;
 	private Paint rimPaint;
-	// Paint to draw the shadow of the bezel
-	private Paint rimShadowPaint;
-	// Paint to draw the scales
-	private Paint scalePaint;
-	// Paint to draw the sky portion of the gauge face
 	private Paint skyPaint;
-	// Paint to draw the small tick marks
-	private Paint smallTickPaint;
-	// Paint to draw the thick tick marks
-	private Paint thickScalePaint;
+
+	private RectF rimRect;
+	private RectF rimOuterRect;
+	private RectF rimTopRect;
+	private RectF rimBottomRect;
+	private RectF rimLeftRect;
+	private RectF rimRightRect;
+	private RectF skyBackgroundRect;
 
 	/**
 	 * Create a new instance.
@@ -215,8 +179,7 @@ public final class GaugeRotation extends View
 		rimPaint = new Paint();
 		rimPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
 		// The linear gradient is a bit skewed for realism
-		rimPaint.setShader(new LinearGradient(0.40f, 0.0f, 0.60f, 1.0f, Color
-				.rgb(0, 0, 0), Color.rgb(0, 0, 0), Shader.TileMode.CLAMP));
+		rimPaint.setXfermode(new PorterDuffXfermode(Mode.CLEAR));
 
 		float rimOuterSize = -0.04f;
 		rimOuterRect = new RectF();
@@ -224,9 +187,6 @@ public final class GaugeRotation extends View
 				+ rimOuterSize, rimRect.right - rimOuterSize, rimRect.bottom
 				- rimOuterSize);
 
-		// still a work in progress changing the rimOuterSize will not
-		// dynamically
-		// change the small rectangles to the appropriate size.
 		rimTopRect = new RectF(0.5f, 0.106f, 0.5f, 0.06f);
 		rimTopRect.set(rimTopRect.left + rimOuterSize, rimTopRect.top
 				+ rimOuterSize, rimTopRect.right - rimOuterSize,
@@ -251,90 +211,16 @@ public final class GaugeRotation extends View
 		rimOuterPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
 		rimOuterPaint.setColor(Color.rgb(255, 255, 255));
 
-		// Paint for the outer circle of the gauge bezel
-		rimCirclePaint = new Paint();
-		rimCirclePaint.setAntiAlias(true);
-		rimCirclePaint.setStyle(Paint.Style.STROKE);
-		rimCirclePaint.setColor(Color.argb(0x4f, 0x33, 0x36, 0x33));
-		rimCirclePaint.setStrokeWidth(0.005f);
-
 		float rimSize = 0.02f;
-		faceRect = new RectF();
-		faceRect.set(rimRect.left + rimSize, rimRect.top + rimSize,
-				rimRect.right - rimSize, rimRect.bottom - rimSize);
-
-		earthRect = new RectF();
-		earthRect.set(rimRect.left + rimSize, rimRect.top + rimSize,
-				rimRect.right - rimSize, rimRect.bottom - rimSize);
-
-		skyRect = new RectF();
-		skyRect.set(rimRect.left + rimSize, rimRect.top + rimSize,
-				rimRect.right - rimSize, rimRect.bottom - rimSize);
 
 		skyBackgroundRect = new RectF();
 		skyBackgroundRect.set(rimRect.left + rimSize, rimRect.top + rimSize,
 				rimRect.right - rimSize, rimRect.bottom - rimSize);
 
-		// now set to black
 		skyPaint = new Paint();
 		skyPaint.setAntiAlias(true);
 		skyPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
 		skyPaint.setColor(Color.WHITE);
-
-		// now set to white
-		earthPaint = new Paint();
-		earthPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-		earthPaint.setShader(new LinearGradient(0.40f, 0.0f, 0.60f, 1.0f, Color
-				.rgb(238, 238, 238), Color.rgb(238, 238, 238),
-				Shader.TileMode.CLAMP));
-
-		rimShadowPaint = new Paint();
-		rimShadowPaint.setShader(new RadialGradient(0.5f, 0.5f, faceRect
-				.width() / 2.0f, new int[]
-		{ 0x00000000, 0x00000500, 0x50000500 }, new float[]
-		{ 0.96f, 0.96f, 0.99f }, Shader.TileMode.MIRROR));
-		rimShadowPaint.setStyle(Paint.Style.FILL);
-
-		scalePaint = new Paint();
-		scalePaint.setStyle(Paint.Style.STROKE);
-		scalePaint.setColor(Color.WHITE);
-		scalePaint.setStrokeWidth(0.005f);
-		scalePaint.setAntiAlias(true);
-
-		arrowPaint = new Paint();
-		arrowPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-		arrowPaint.setColor(Color.RED);
-		arrowPaint.setStrokeWidth(0.005f);
-		arrowPaint.setAntiAlias(true);
-
-		thickScalePaint = new Paint();
-		thickScalePaint.setStyle(Paint.Style.STROKE);
-		thickScalePaint.setColor(Color.WHITE);
-		thickScalePaint.setStrokeWidth(0.008f);
-		thickScalePaint.setAntiAlias(true);
-
-		numericPaint = new Paint();
-		numericPaint.setTextSize(0.035f);
-		numericPaint.setColor(Color.WHITE);
-		numericPaint.setTypeface(Typeface.DEFAULT);
-		numericPaint.setAntiAlias(true);
-		numericPaint.setTextAlign(Paint.Align.CENTER);
-		// Bug issue with 4.2.1, only displays first digit. The answer is to
-		// include setLinearText(true) on your paint for the text. This method
-		// is showing as deprecated, but it's the only solution for the text to
-		// display properly.
-		numericPaint.setLinearText(true);
-
-		smallTickPaint = new Paint();
-		smallTickPaint.setStyle(Paint.Style.STROKE);
-		smallTickPaint.setColor(Color.argb(100, 255, 255, 255));
-		smallTickPaint.setStrokeWidth(0.005f);
-		smallTickPaint.setAntiAlias(true);
-
-		gaugeGuidePaint = new Paint();
-		gaugeGuidePaint.setFilterBitmap(true);
-		BitmapFactory.Options options = new BitmapFactory.Options();
-		options.inPreferredConfig = Bitmap.Config.ARGB_8888;
 
 		backgroundPaint = new Paint();
 		backgroundPaint.setFilterBitmap(true);
@@ -386,8 +272,6 @@ public final class GaugeRotation extends View
 		canvas.drawOval(rimOuterRect, rimOuterPaint);
 		// Then draw the small black line
 		canvas.drawOval(rimRect, rimPaint);
-		// now the outer rim circle
-		// canvas.drawOval(rimRect, rimCirclePaint);
 
 		canvas.drawRect(rimTopRect, rimOuterPaint);
 		// bottom rect
@@ -445,24 +329,8 @@ public final class GaugeRotation extends View
 		faceBitmap.setPixels(allpixels, 0, faceBitmap.getWidth(), 0, 0,
 				faceBitmap.getWidth(), height);
 
-		float x = -rotation[2];
-
-		// Restrict x between 1 and -1
-		if (x > 1)
-		{
-			x = 1;
-		}
-		if (x < -1)
-		{
-			x = -1;
-		}
-
-		// Calculate the rotation angle from
-		// http://www.st.com/web/en/resource/technical/document/application_note/CD00268887.pdf
-		float angle = (float) (Math.asin(x) * 57.2957795);
-
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.rotate(-angle, faceBitmap.getWidth() / 2f,
+		canvas.rotate((float) Math.toDegrees(rotation[2]), faceBitmap.getWidth() / 2f,
 				faceBitmap.getHeight() / 2f);
 
 		canvas.drawBitmap(faceBitmap, 0, 0, backgroundPaint);

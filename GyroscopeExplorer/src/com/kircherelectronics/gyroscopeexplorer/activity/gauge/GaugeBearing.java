@@ -5,6 +5,9 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Paint.Style;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.os.Bundle;
@@ -15,7 +18,7 @@ import android.view.View;
 
 /*
  * Gyroscope Explorer
- * Copyright (C) 2013, Kaleb Kircher - Boki Software, Kircher Engineering, LLC
+ * Copyright (C) 2013-2015, Kaleb Kircher - Kircher Engineering, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,13 +72,6 @@ public final class GaugeBearing extends View
 	 */
 
 	/*
-	 * Developer Note: TextureView can only be used in a hardware accelerated
-	 * window. When rendered in software, TextureView will draw nothing! On
-	 * Android 3.0 devices this means a manifest declaration. On older devices,
-	 * other implementations than TetureView will be required.
-	 */
-
-	/*
 	 * Developer Note: There are some things to keep in mind when it comes to
 	 * Android and hardware acceleration. What we see in Android 4.0 is “full”
 	 * hardware acceleration. All UI elements in windows, and third-party apps
@@ -104,45 +100,40 @@ public final class GaugeBearing extends View
 
 	private static final String tag = GaugeBearing.class.getSimpleName();
 
-	// drawing tools
-	private RectF rimRect;
-	private Paint rimPaint;
+	private static final int DEGREE_CENTER = 0;
+	private static final int DEGREE_MIN = 0;
+	private static final int DEGREE_MAX = 360;
 
-	private RectF faceRect;
-	private Paint facePaint;
-
-	// added by Scott for the rectangles on the outside circle
-	private RectF rimOuterTopRect;
-	private RectF rimOuterBottomRect;
-	private RectF rimOuterLeftRect;
-	private RectF rimOuterRightRect;
-
-	// Static bitmap for the face of the gauge
-	private Bitmap hand;
-	private Paint handPaint;
-	private Path handPath;
-
-	private Paint backgroundPaint;
-	// end drawing tools
-
-	private Bitmap background; // holds the cached static part
-
-	private Canvas handCanvas;
-	
-	// the one in the top center (12 o'clock)
-	private static final int centerDegree = 0;
-	private static final int minDegrees = 0;
-	private static final int maxDegrees = 360;
-
-	// hand dynamics -- all are angular expressed in F degrees
 	private boolean handInitialized = false;
-	private float handPosition = centerDegree;
-	private float handTarget = centerDegree;
+
+	private float handPosition = DEGREE_CENTER;
+	private float handTarget = DEGREE_CENTER;
 	private float handVelocity = 0.0f;
 	private float handAcceleration = 0.0f;
+
 	private long lastHandMoveTime = -1L;
 
-	private int unitsOfMeasure = UnitsOfMeasure.DEGREES;
+	// Static bitmaps
+	private Bitmap background;
+	private Bitmap hand;
+
+	private Canvas handCanvas;
+
+	private Paint backgroundPaint;
+	private Paint facePaint;
+	private Paint handPaint;
+	private Paint rimPaint;
+	private Paint rimOuterPaint;
+
+	private Path handPath;
+
+	private RectF faceRect;
+	private RectF rimRect;
+	private RectF rimOuterRect;
+	private RectF rimTopRect;
+	private RectF rimBottomRect;
+	private RectF rimLeftRect;
+	private RectF rimRightRect;
 
 	/**
 	 * Create a new instance.
@@ -178,16 +169,6 @@ public final class GaugeBearing extends View
 	{
 		super(context, attrs, defStyle);
 		init();
-	}
-
-	public int getUnitsOfMeasure()
-	{
-		return unitsOfMeasure;
-	}
-
-	public void setUnitsOfMeasure(int unitsOfMeasure)
-	{
-		this.unitsOfMeasure = unitsOfMeasure;
 	}
 
 	/**
@@ -263,31 +244,55 @@ public final class GaugeBearing extends View
 	private void initDrawingTools()
 	{
 
-		rimRect = new RectF(0.1f, 0.1f, 0.9f, 0.9f);
+		// Rectangle for the rim of the gauge bezel
+		rimRect = new RectF(0.12f, 0.12f, 0.88f, 0.88f);
 
-		// the linear gradient is a bit skewed for realism
+		// Paint for the rim of the gauge bezel
 		rimPaint = new Paint();
-		rimPaint.setAntiAlias(true);
 		rimPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-		rimPaint.setColor(Color.rgb(255, 255, 255));
+		// The linear gradient is a bit skewed for realism
+		rimPaint.setXfermode(new PorterDuffXfermode(Mode.CLEAR));
+
+		float rimOuterSize = -0.04f;
+		rimOuterRect = new RectF();
+		rimOuterRect.set(rimRect.left + rimOuterSize, rimRect.top
+				+ rimOuterSize, rimRect.right - rimOuterSize, rimRect.bottom
+				- rimOuterSize);
+
+		rimTopRect = new RectF(0.5f, 0.106f, 0.5f, 0.06f);
+		rimTopRect.set(rimTopRect.left + rimOuterSize, rimTopRect.top
+				+ rimOuterSize, rimTopRect.right - rimOuterSize,
+				rimTopRect.bottom - rimOuterSize);
+
+		rimBottomRect = new RectF(0.5f, 0.94f, 0.5f, 0.894f);
+		rimBottomRect.set(rimBottomRect.left + rimOuterSize, rimBottomRect.top
+				+ rimOuterSize, rimBottomRect.right - rimOuterSize,
+				rimBottomRect.bottom - rimOuterSize);
+
+		rimLeftRect = new RectF(0.106f, 0.5f, 0.06f, 0.5f);
+		rimLeftRect.set(rimLeftRect.left + rimOuterSize, rimLeftRect.top
+				+ rimOuterSize, rimLeftRect.right - rimOuterSize,
+				rimLeftRect.bottom - rimOuterSize);
+
+		rimRightRect = new RectF(0.94f, 0.5f, 0.894f, 0.5f);
+		rimRightRect.set(rimRightRect.left + rimOuterSize, rimRightRect.top
+				+ rimOuterSize, rimRightRect.right - rimOuterSize,
+				rimRightRect.bottom - rimOuterSize);
+
+		rimOuterPaint = new Paint();
+		rimOuterPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+		rimOuterPaint.setColor(Color.rgb(255, 255, 255));
 
 		float rimSize = 0.03f;
 		faceRect = new RectF();
 		faceRect.set(rimRect.left + rimSize, rimRect.top + rimSize,
 				rimRect.right - rimSize, rimRect.bottom - rimSize);
 
-		rimOuterTopRect = new RectF(0.46f, 0.076f, 0.54f, 0.11f);
-
-		rimOuterBottomRect = new RectF(0.46f, 0.89f, 0.54f, 0.924f);
-
-		rimOuterLeftRect = new RectF(0.076f, 0.46f, 0.11f, 0.54f);
-
-		rimOuterRightRect = new RectF(0.89f, 0.46f, 0.924f, 0.54f);
-
 		facePaint = new Paint();
 		facePaint.setStyle(Paint.Style.FILL);
 		facePaint.setFlags(Paint.ANTI_ALIAS_FLAG);
 		facePaint.setAntiAlias(true);
+		facePaint.setColor(Color.TRANSPARENT);
 
 		handPaint = new Paint();
 		handPaint.setAntiAlias(true);
@@ -361,17 +366,19 @@ public final class GaugeBearing extends View
 	 */
 	private void drawRim(Canvas canvas)
 	{
-		// first, draw the metallic body
+		// First draw the most back rim
+		canvas.drawOval(rimOuterRect, rimOuterPaint);
+		// Then draw the small black line
 		canvas.drawOval(rimRect, rimPaint);
 
 		// top rect
-		canvas.drawRect(rimOuterTopRect, rimPaint);
+		canvas.drawRect(rimTopRect, rimOuterPaint);
 		// bottom rect
-		canvas.drawRect(rimOuterBottomRect, rimPaint);
+		canvas.drawRect(rimBottomRect, rimOuterPaint);
 		// left rect
-		canvas.drawRect(rimOuterLeftRect, rimPaint);
+		canvas.drawRect(rimLeftRect, rimOuterPaint);
 		// right rect
-		canvas.drawRect(rimOuterRightRect, rimPaint);
+		canvas.drawRect(rimRightRect, rimOuterPaint);
 	}
 
 	/**
@@ -504,13 +511,13 @@ public final class GaugeBearing extends View
 	 */
 	private void setHandTarget(float bearing)
 	{
-		if (bearing < minDegrees)
+		if (bearing < DEGREE_MIN)
 		{
-			bearing = minDegrees;
+			bearing = DEGREE_MIN;
 		}
-		else if (bearing > maxDegrees)
+		else if (bearing > DEGREE_MAX)
 		{
-			bearing = maxDegrees;
+			bearing = DEGREE_MAX;
 		}
 
 		handTarget = bearing;

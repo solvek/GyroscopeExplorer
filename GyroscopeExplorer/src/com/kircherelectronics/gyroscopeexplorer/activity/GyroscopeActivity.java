@@ -331,7 +331,7 @@ public class GyroscopeActivity extends Activity implements Runnable
 	 */
 	private void logData()
 	{
-		if (logData)
+		if (logData && dataReady)
 		{
 			if (generation == 0)
 			{
@@ -564,9 +564,9 @@ public class GyroscopeActivity extends Activity implements Runnable
 
 	private void updateText()
 	{
-		tvXAxis.setText(String.format("%.2f", vOrientation[0]));
-		tvYAxis.setText(String.format("%.2f", vOrientation[1]));
-		tvZAxis.setText(String.format("%.2f", vOrientation[2]));
+		tvXAxis.setText(String.format("%.2f", Math.toDegrees(vOrientation[0])));
+		tvYAxis.setText(String.format("%.2f", Math.toDegrees(vOrientation[1])));
+		tvZAxis.setText(String.format("%.2f", Math.toDegrees(vOrientation[2])));
 	}
 
 	private void updateGauges()

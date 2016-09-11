@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "/Users/kaleb/StudioProjects/GyroscopeExplorer/app/build/intermediates/res/merged/debug/layout/activity_gyroscope.xml",
+        "source": "/Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/res/layout/activity_gyroscope.xml"
+    },
+    {
+        "merged": "/Users/kaleb/StudioProjects/GyroscopeExplorer/app/build/intermediates/res/merged/debug/layout/layout_help_home.xml",
+        "source": "/Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/res/layout/layout_help_home.xml"
+    }
+]

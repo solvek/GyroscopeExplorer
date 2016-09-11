@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "/Users/kaleb/StudioProjects/GyroscopeExplorer/app/build/intermediates/res/merged/debug/drawable-xhdpi-v4/color_bar.png",
+        "source": "/Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/res/drawable-xhdpi/color_bar.png"
+    },
+    {
+        "merged": "/Users/kaleb/StudioProjects/GyroscopeExplorer/app/build/intermediates/res/merged/debug/drawable-xhdpi-v4/gyroscope_explorer.png",
+        "source": "/Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/res/drawable-xhdpi/gyroscope_explorer.png"
+    },
+    {
+        "merged": "/Users/kaleb/StudioProjects/GyroscopeExplorer/app/build/intermediates/res/merged/debug/drawable-xhdpi-v4/ke_icon.png",
+        "source": "/Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/res/drawable-xhdpi/ke_icon.png"
+    }
+]

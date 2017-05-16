@@ -6,7 +6,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuffXfermode;
-import android.graphics.Paint.Style;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.Path;
 import android.graphics.RectF;
@@ -17,21 +16,19 @@ import android.util.Log;
 import android.view.View;
 
 /*
- * Gyroscope Explorer
- * Copyright (C) 2013-2015, Kaleb Kircher - Kircher Engineering, LLC
+ * Copyright 2013-2017, Kaleb Kircher - Kircher Engineering, LLC
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 /**
@@ -49,7 +46,7 @@ import android.view.View;
  * 
  * @author Kaleb
  * @version %I%, %G%
- * @see http://developer.android.com/reference/android/view/SurfaceView.html
+ * http://developer.android.com/reference/android/view/SurfaceView.html
  */
 public final class GaugeBearing extends View
 {
@@ -73,13 +70,13 @@ public final class GaugeBearing extends View
 
 	/*
 	 * Developer Note: There are some things to keep in mind when it comes to
-	 * Android and hardware acceleration. What we see in Android 4.0 is “full”
+	 * Android and hardware acceleration. What we see in Android 4.0 is ï¿½fullï¿½
 	 * hardware acceleration. All UI elements in windows, and third-party apps
 	 * will have access to the GPU for rendering. Android 3.0 had the same
 	 * system, but now developers will be able to specifically target Android
 	 * 4.0 with hardware acceleration. Google is encouraging developers to
 	 * update apps to be fully-compatible with this system by adding the
-	 * hardware acceleration tag in an app’s manifest. Android has always used
+	 * hardware acceleration tag in an appï¿½s manifest. Android has always used
 	 * some hardware accelerated drawing.
 	 * 
 	 * Since before 1.0 all window compositing to the display has been done with
@@ -87,12 +84,12 @@ public final class GaugeBearing extends View
 	 * in Android 3.0. The implementation in Android 4.0 is not any more full
 	 * than in 3.0. Starting with 3.0, if you set the flag in your app saying
 	 * that hardware accelerated drawing is allowed, then all drawing to the
-	 * application’s windows will be done with the GPU. The main change in this
+	 * applicationï¿½s windows will be done with the GPU. The main change in this
 	 * regard in Android 4.0 is that now apps that are explicitly targeting 4.0
 	 * or higher will have acceleration enabled by default rather than having to
 	 * put android:handwareAccelerated="true" in their manifest. (And the reason
-	 * this isn’t just turned on for all existing applications is that some
-	 * types of drawing operations can’t be supported well in hardware and it
+	 * this isnï¿½t just turned on for all existing applications is that some
+	 * types of drawing operations canï¿½t be supported well in hardware and it
 	 * also impacts the behavior when an application asks to have a part of its
 	 * UI updated. Forcing hardware accelerated drawing upon existing apps will
 	 * break a significant number of them, from subtly to significantly.)

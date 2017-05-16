@@ -1,7 +1,5 @@
 package com.kircherelectronics.gyroscopeexplorer.activity.filter;
 
-import com.kircherelectronics.gyroscopeexplorer.activity.ConfigActivity;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
@@ -9,265 +7,224 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.preference.PreferenceManager;
-import android.util.Log;
+
+import com.kircherelectronics.gyroscopeexplorer.activity.ConfigActivity;
 
 /*
- * Gyroscope Explorer
- * Copyright (C) 2013-2015, Kaleb Kircher - Kircher Engineering, LLC
+ * Copyright 2013-2017, Kaleb Kircher - Kircher Engineering, LLC
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 /**
  * An abstract class that provides an interface for classes that deal with
  * gyroscope integration and filters. Takes care of a lot of the boiler plate
  * code.
- * 
- * @author Kaleb
  *
+ * @author Kaleb
  */
 public abstract class Orientation implements OrientationInterface,
-		SensorEventListener
-{
-	private final static String tag = Orientation.class.getSimpleName();
+        SensorEventListener {
+    protected static final float EPSILON = 0.000000001f;
+    // private static final float NS2S = 1.0f / 10000.0f;
+    // Nano-second to second conversion
+    protected static final float NS2S = 1.0f / 1000000000.0f;
+    private final static String tag = Orientation.class.getSimpleName();
+    protected float dT = 0;
+    protected boolean isOrientationValidAccelMag = false;
+    protected boolean meanFilterSmoothingEnabled = false;
+    protected float meanFilterTimeConstant = 0.2f;
+    // accelerometer and magnetometer based rotation matrix
+    protected float[] rmOrientationAccelMag = new float[9];
+    // We need the SensorManager to register for Sensor Events.
+    protected SensorManager sensorManager;
+    protected long timeStampGyroscope = 0;
+    protected long timeStampGyroscopeOld = 0;
+    // accelerometer vector
+    protected float[] vAcceleration = new float[3];
+    // angular speeds from gyro
+    protected float[] vGyroscope = new float[3];
+    // magnetic field vector
+    protected float[] vMagnetic = new float[3];
+    protected float[] vOrientationAccelMag = new float[3];
+    private boolean calibratedGyroscopeEnabled = true;
+    private Context context;
+    private MeanFilterSmoothing meanFilterAcceleration;
+    private MeanFilterSmoothing meanFilterGyroscope;
+    private MeanFilterSmoothing meanFilterMagnetic;
 
-	protected static final float EPSILON = 0.000000001f;
+    public Orientation(Context context) {
+        this.context = context;
+        this.sensorManager = (SensorManager) context
+                .getSystemService(Context.SENSOR_SERVICE);
 
-	// private static final float NS2S = 1.0f / 10000.0f;
-	// Nano-second to second conversion
-	protected static final float NS2S = 1.0f / 1000000000.0f;
+        initFilters();
+    }
 
-	private boolean calibratedGyroscopeEnabled = true;
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
-	protected boolean meanFilterSmoothingEnabled = false;
-	protected boolean isOrientationValidAccelMag = false;
+    }
 
-	protected float dT = 0;
+    public void onPause() {
+        sensorManager.unregisterListener(this);
+    }
 
-	protected float meanFilterTimeConstant = 0.2f;
+    public void onResume() {
+        calibratedGyroscopeEnabled = getPrefCalibratedGyroscopeEnabled();
+        meanFilterSmoothingEnabled = getPrefMeanFilterSmoothingEnabled();
+        meanFilterTimeConstant = getPrefMeanFilterSmoothingTimeConstant();
 
-	// angular speeds from gyro
-	protected float[] vGyroscope = new float[3];
+        sensorManager.registerListener(this,
+                sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                SensorManager.SENSOR_DELAY_FASTEST);
 
-	// magnetic field vector
-	protected float[] vMagnetic = new float[3];
+        sensorManager.registerListener(this,
+                sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
+                SensorManager.SENSOR_DELAY_FASTEST);
 
-	// accelerometer vector
-	protected float[] vAcceleration = new float[3];
+        if (calibratedGyroscopeEnabled) {
+            sensorManager.registerListener(this,
+                    sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
+                    SensorManager.SENSOR_DELAY_FASTEST);
+        } else {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                sensorManager.registerListener(this, sensorManager
+                                .getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED),
+                        SensorManager.SENSOR_DELAY_FASTEST);
+            }
+        }
+    }
 
-	// accelerometer and magnetometer based rotation matrix
-	protected float[] rmOrientationAccelMag = new float[9];
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            // Get a local copy of the raw magnetic values from the device
+            // sensor.
+            System.arraycopy(event.values, 0, this.vAcceleration, 0,
+                    this.vGyroscope.length);
 
-	protected float[] vOrientationAccelMag = new float[3];
+            if (meanFilterSmoothingEnabled) {
+                this.vAcceleration = meanFilterAcceleration
+                        .addSamples(this.vAcceleration);
+            }
 
-	protected long timeStampGyroscope = 0;
-	protected long timeStampGyroscopeOld = 0;
+            // We fuse the orientation of the magnetic and acceleration sensor
+            // based on acceleration sensor updates. It could be done when the
+            // magnetic sensor updates or when they both have updated if you
+            // want to spend the resources to make the checks.
+            calculateOrientationAccelMag();
+        }
 
-	private Context context;
+        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+            // Get a local copy of the raw magnetic values from the device
+            // sensor.
+            System.arraycopy(event.values, 0, this.vMagnetic, 0,
+                    this.vGyroscope.length);
 
-	private MeanFilterSmoothing meanFilterAcceleration;
-	private MeanFilterSmoothing meanFilterMagnetic;
-	private MeanFilterSmoothing meanFilterGyroscope;
+            if (meanFilterSmoothingEnabled) {
+                this.vMagnetic = meanFilterMagnetic.addSamples(this.vMagnetic);
+            }
+        }
 
-	// We need the SensorManager to register for Sensor Events.
-	protected SensorManager sensorManager;
+        if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+            System.arraycopy(event.values, 0, this.vGyroscope, 0,
+                    this.vGyroscope.length);
 
-	public Orientation(Context context)
-	{
-		this.context = context;
-		this.sensorManager = (SensorManager) context
-				.getSystemService(Context.SENSOR_SERVICE);
+            if (meanFilterSmoothingEnabled) {
+                this.vGyroscope = meanFilterGyroscope
+                        .addSamples(this.vGyroscope);
+            }
 
-		initFilters();
-	}
+            timeStampGyroscope = event.timestamp;
 
-	@Override
-	public void onSensorChanged(SensorEvent event)
-	{
-		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
-		{
-			// Get a local copy of the raw magnetic values from the device
-			// sensor.
-			System.arraycopy(event.values, 0, this.vAcceleration, 0,
-					this.vGyroscope.length);
+            onGyroscopeChanged();
+        }
 
-			if (meanFilterSmoothingEnabled)
-			{
-				this.vAcceleration = meanFilterAcceleration
-						.addSamples(this.vAcceleration);
-			}
+        if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE_UNCALIBRATED) {
+            System.arraycopy(event.values, 0, this.vGyroscope, 0,
+                    this.vGyroscope.length);
 
-			// We fuse the orientation of the magnetic and acceleration sensor
-			// based on acceleration sensor updates. It could be done when the
-			// magnetic sensor updates or when they both have updated if you
-			// want to spend the resources to make the checks.
-			calculateOrientationAccelMag();
-		}
+            if (meanFilterSmoothingEnabled) {
+                this.vGyroscope = meanFilterGyroscope
+                        .addSamples(this.vGyroscope);
+            }
 
-		if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
-		{
-			// Get a local copy of the raw magnetic values from the device
-			// sensor.
-			System.arraycopy(event.values, 0, this.vMagnetic, 0,
-					this.vGyroscope.length);
+            timeStampGyroscope = event.timestamp;
 
-			if (meanFilterSmoothingEnabled)
-			{
-				this.vMagnetic = meanFilterMagnetic.addSamples(this.vMagnetic);
-			}
-		}
+            onGyroscopeChanged();
+        }
 
-		if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE)
-		{
-			System.arraycopy(event.values, 0, this.vGyroscope, 0,
-					this.vGyroscope.length);
+    }
 
-			if (meanFilterSmoothingEnabled)
-			{
-				this.vGyroscope = meanFilterGyroscope
-						.addSamples(this.vGyroscope);
-			}
+    /**
+     * Reinitialize the sensor and filter.
+     */
+    public abstract void reset();
 
-			timeStampGyroscope = event.timestamp;
+    protected void calculateOrientationAccelMag() {
+        // To get the orientation vector from the acceleration and magnetic
+        // sensors, we let Android do the heavy lifting. This call will
+        // automatically compensate for the tilt of the compass and fail if the
+        // magnitude of the acceleration is not close to 9.82m/sec^2. You could
+        // perform these steps yourself, but in my opinion, this is the best way
+        // to do it.
+        if (SensorManager.getRotationMatrix(rmOrientationAccelMag, null,
+                vAcceleration, vMagnetic)) {
+            SensorManager.getOrientation(rmOrientationAccelMag,
+                    vOrientationAccelMag);
 
-			onGyroscopeChanged();
-		}
+            isOrientationValidAccelMag = true;
+        }
+    }
 
-		if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE_UNCALIBRATED)
-		{
-			System.arraycopy(event.values, 0, this.vGyroscope, 0,
-					this.vGyroscope.length);
+    protected abstract void onGyroscopeChanged();
 
-			if (meanFilterSmoothingEnabled)
-			{
-				this.vGyroscope = meanFilterGyroscope
-						.addSamples(this.vGyroscope);
-			}
+    private boolean getPrefCalibratedGyroscopeEnabled() {
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(context);
 
-			timeStampGyroscope = event.timestamp;
+        return prefs.getBoolean(
+                ConfigActivity.CALIBRATED_GYROSCOPE_ENABLED_KEY, true);
+    }
 
-			onGyroscopeChanged();
-		}
+    private boolean getPrefMeanFilterSmoothingEnabled() {
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(context);
 
-	}
+        return prefs.getBoolean(
+                ConfigActivity.MEAN_FILTER_SMOOTHING_ENABLED_KEY, false);
+    }
 
-	public void onPause()
-	{
-		sensorManager.unregisterListener(this);
-	}
+    private float getPrefMeanFilterSmoothingTimeConstant() {
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(context);
 
-	public void onResume()
-	{
-		calibratedGyroscopeEnabled = getPrefCalibratedGyroscopeEnabled();
-		meanFilterSmoothingEnabled = getPrefMeanFilterSmoothingEnabled();
-		meanFilterTimeConstant = getPrefMeanFilterSmoothingTimeConstant();
+        return Float.valueOf(prefs.getString(
+                ConfigActivity.MEAN_FILTER_SMOOTHING_TIME_CONSTANT_KEY, "0.5"));
+    }
 
-		sensorManager.registerListener(this,
-				sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-				SensorManager.SENSOR_DELAY_FASTEST);
+    /**
+     * Initialize the mean filters.
+     */
+    private void initFilters() {
+        meanFilterAcceleration = new MeanFilterSmoothing();
+        meanFilterAcceleration.setTimeConstant(meanFilterTimeConstant);
 
-		sensorManager.registerListener(this,
-				sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
-				SensorManager.SENSOR_DELAY_FASTEST);
+        meanFilterMagnetic = new MeanFilterSmoothing();
+        meanFilterMagnetic.setTimeConstant(meanFilterTimeConstant);
 
-		if (calibratedGyroscopeEnabled)
-		{
-			sensorManager.registerListener(this,
-					sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
-					SensorManager.SENSOR_DELAY_FASTEST);
-		}
-		else
-		{
-			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2)
-			{
-				sensorManager.registerListener(this, sensorManager
-						.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED),
-						SensorManager.SENSOR_DELAY_FASTEST);
-			}
-		}
-	}
-
-	protected void calculateOrientationAccelMag()
-	{
-		// To get the orientation vector from the acceleration and magnetic
-		// sensors, we let Android do the heavy lifting. This call will
-		// automatically compensate for the tilt of the compass and fail if the
-		// magnitude of the acceleration is not close to 9.82m/sec^2. You could
-		// perform these steps yourself, but in my opinion, this is the best way
-		// to do it.
-		if (SensorManager.getRotationMatrix(rmOrientationAccelMag, null,
-				vAcceleration, vMagnetic))
-		{
-			SensorManager.getOrientation(rmOrientationAccelMag,
-					vOrientationAccelMag);
-
-			isOrientationValidAccelMag = true;
-		}
-	}
-
-	/**
-	 * Reinitialize the sensor and filter.
-	 */
-	public abstract void reset();
-
-	protected abstract void onGyroscopeChanged();
-
-	private boolean getPrefCalibratedGyroscopeEnabled()
-	{
-		SharedPreferences prefs = PreferenceManager
-				.getDefaultSharedPreferences(context);
-
-		return prefs.getBoolean(
-				ConfigActivity.CALIBRATED_GYROSCOPE_ENABLED_KEY, true);
-	}
-
-	private boolean getPrefMeanFilterSmoothingEnabled()
-	{
-		SharedPreferences prefs = PreferenceManager
-				.getDefaultSharedPreferences(context);
-
-		return prefs.getBoolean(
-				ConfigActivity.MEAN_FILTER_SMOOTHING_ENABLED_KEY, false);
-	}
-
-	private float getPrefMeanFilterSmoothingTimeConstant()
-	{
-		SharedPreferences prefs = PreferenceManager
-				.getDefaultSharedPreferences(context);
-
-		return Float.valueOf(prefs.getString(
-				ConfigActivity.MEAN_FILTER_SMOOTHING_TIME_CONSTANT_KEY, "0.5"));
-	}
-
-	/**
-	 * Initialize the mean filters.
-	 */
-	private void initFilters()
-	{
-		meanFilterAcceleration = new MeanFilterSmoothing();
-		meanFilterAcceleration.setTimeConstant(meanFilterTimeConstant);
-
-		meanFilterMagnetic = new MeanFilterSmoothing();
-		meanFilterMagnetic.setTimeConstant(meanFilterTimeConstant);
-
-		meanFilterGyroscope = new MeanFilterSmoothing();
-		meanFilterGyroscope.setTimeConstant(meanFilterTimeConstant);
-	}
-
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy)
-	{
-
-	}
+        meanFilterGyroscope = new MeanFilterSmoothing();
+        meanFilterGyroscope.setTimeConstant(meanFilterTimeConstant);
+    }
 }

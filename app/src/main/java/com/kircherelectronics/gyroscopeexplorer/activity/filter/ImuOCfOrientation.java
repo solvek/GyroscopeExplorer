@@ -4,21 +4,19 @@ import android.content.Context;
 import android.hardware.SensorManager;
 
 /*
- * Gyroscope Explorer
- * Copyright (C) 2013-2015, Kaleb Kircher - Kircher Engineering, LLC
+ * Copyright 2013-2017, Kaleb Kircher - Kircher Engineering, LLC
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 /**
@@ -74,12 +72,10 @@ import android.hardware.SensorManager;
  * 
  * @author Kaleb
  * @version %I%, %G%
- * @see http 
- *      ://developer.android.com/reference/android/hardware/SensorEvent.html#
- *      values
+ * http://developer.android.com/reference/android/hardware/SensorEvent.html#values
  * 
- *      The gist of this algorithm was written by Paul Lawitzki.
- * @see http://www.thousand-thoughts.com/2012/03/android-sensor-fusion-tutorial/
+ * The gist of this algorithm was written by Paul Lawitzki.
+ * http://www.thousand-thoughts.com/2012/03/android-sensor-fusion-tutorial/
  * 
  */
 
@@ -119,12 +115,7 @@ public class ImuOCfOrientation extends Orientation
 	/**
 	 * Initialize a singleton instance.
 	 * 
-	 * @param gravitySubject
-	 *            the gravity subject.
-	 * @param gyroscopeSubject
-	 *            the gyroscope subject.
-	 * @param magneticSubject
-	 *            the magnetic subject.
+	 * @param context
 	 */
 	public ImuOCfOrientation(Context context)
 	{
@@ -254,19 +245,18 @@ public class ImuOCfOrientation extends Orientation
 	 * Calculate the fused orientation. The gist of this algorithm was written
 	 * by Paul Lawitzki.
 	 * 
-	 * @see http 
-	 *      ://www.thousand-thoughts.com/2012/03/android-sensor-fusion-tutorial/
+	 * http://www.thousand-thoughts.com/2012/03/android-sensor-fusion-tutorial/
 	 */
 	private void calculateFusedOrientation()
 	{
 		float oneMinusCoeff = (1.0f - filterCoefficient);
 
 		/*
-		 * Fix for 179° <--> -179° transition problem: Check whether one of the
+		 * Fix for 179ï¿½ <--> -179ï¿½ transition problem: Check whether one of the
 		 * two orientation angles (gyro or accMag) is negative while the other
-		 * one is positive. If so, add 360° (2 * math.PI) to the negative value,
-		 * perform the sensor fusion, and remove the 360° from the result if it
-		 * is greater than 180°. This stabilizes the output in
+		 * one is positive. If so, add 360ï¿½ (2 * math.PI) to the negative value,
+		 * perform the sensor fusion, and remove the 360ï¿½ from the result if it
+		 * is greater than 180ï¿½. This stabilizes the output in
 		 * positive-to-negative-transition cases.
 		 */
 
@@ -354,12 +344,8 @@ public class ImuOCfOrientation extends Orientation
 
 	/**
 	 * Calculates a rotation vector from the gyroscope angular speed values.
-	 * 
-	 * @param gyroValues
-	 * @param deltaRotationVector
-	 * @param timeFactor
-	 * @see http://developer.android
-	 *      .com/reference/android/hardware/SensorEvent.html#values
+	 *
+     * http://developer.android.com/reference/android/hardware/SensorEvent.html#values
 	 */
 	private void getRotationVectorFromGyro()
 	{
@@ -420,11 +406,11 @@ public class ImuOCfOrientation extends Orientation
 	 * rotations can be found in Wikipedia with the caveat that the rotations
 	 * are *transposed* relative to what is required for this method.
 	 * 
-	 * @param The
+	 * @param orientation
 	 *            device orientation.
 	 * @return The rotation matrix from the orientation.
 	 * 
-	 * @see http://en.wikipedia.org/wiki/Rotation_matrix
+	 * http://en.wikipedia.org/wiki/Rotation_matrix
 	 */
 	private float[] getRotationMatrixFromOrientation(float[] orientation)
 	{

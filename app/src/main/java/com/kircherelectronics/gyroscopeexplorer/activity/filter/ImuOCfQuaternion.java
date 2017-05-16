@@ -79,10 +79,7 @@ import android.hardware.SensorManager;
  * 
  * 
  * @author Kaleb
- * @version %I%, %G%
- * @see http 
- *      ://developer.android.com/reference/android/hardware/SensorEvent.html#
- *      values
+ * @version %I%, %G%http://developer.android.com/reference/android/hardware/SensorEvent.html# values
  * 
  * 
  */
@@ -124,13 +121,7 @@ public class ImuOCfQuaternion extends Orientation
 
 	/**
 	 * Initialize a singleton instance.
-	 * 
-	 * @param gravitySubject
-	 *            the gravity subject.
-	 * @param gyroscopeSubject
-	 *            the gyroscope subject.
-	 * @param magneticSubject
-	 *            the magnetic subject.
+	 * @param context
 	 */
 	public ImuOCfQuaternion(Context context)
 	{

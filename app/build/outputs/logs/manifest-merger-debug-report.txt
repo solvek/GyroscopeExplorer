@@ -17,7 +17,7 @@ ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidMan
 		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:2:11-69
 uses-sdk
 ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:7:5-9:41
-MERGED from [com.android.support:support-v4:22.2.1] /Users/kaleb/StudioProjects/GyroscopeExplorer/app/build/intermediates/exploded-aar/com.android.support/support-v4/22.2.1/AndroidManifest.xml:20:5-43
+MERGED from [com.android.support:support-v4:22.2.1] /Users/kaleb/.android/build-cache/9b760a75037b3e95bd2caede26455c4007718907/output/AndroidManifest.xml:20:5-43
 	android:targetSdkVersion
 		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:9:9-38
 		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
@@ -42,7 +42,7 @@ ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidMan
 		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:13:22-81
 application
 ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:15:5-32:19
-MERGED from [com.android.support:support-v4:22.2.1] /Users/kaleb/StudioProjects/GyroscopeExplorer/app/build/intermediates/exploded-aar/com.android.support/support-v4/22.2.1/AndroidManifest.xml:22:5-20
+MERGED from [com.android.support:support-v4:22.2.1] /Users/kaleb/.android/build-cache/9b760a75037b3e95bd2caede26455c4007718907/output/AndroidManifest.xml:22:5-20
 	android:label
 		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:18:9-41
 	android:allowBackup

@@ -8,12 +8,12 @@
         "source": "/Users/kaleb/.android/build-cache/32a7c33c08fe9c05c5a52f914006231dea1f18c9/output/res/drawable-xxhdpi-v4/abc_list_pressed_holo_dark.9.png"
     },
     {
-        "merged": "/Users/kaleb/StudioProjects/GyroscopeExplorer/app/build/intermediates/res/merged/debug/drawable-xxhdpi-v4/abc_tab_indicator_mtrl_alpha.9.png",
-        "source": "/Users/kaleb/.android/build-cache/32a7c33c08fe9c05c5a52f914006231dea1f18c9/output/res/drawable-xxhdpi-v4/abc_tab_indicator_mtrl_alpha.9.png"
-    },
-    {
         "merged": "/Users/kaleb/StudioProjects/GyroscopeExplorer/app/build/intermediates/res/merged/debug/drawable-xxhdpi-v4/abc_ic_menu_selectall_mtrl_alpha.png",
         "source": "/Users/kaleb/.android/build-cache/32a7c33c08fe9c05c5a52f914006231dea1f18c9/output/res/drawable-xxhdpi-v4/abc_ic_menu_selectall_mtrl_alpha.png"
+    },
+    {
+        "merged": "/Users/kaleb/StudioProjects/GyroscopeExplorer/app/build/intermediates/res/merged/debug/drawable-xxhdpi-v4/abc_tab_indicator_mtrl_alpha.9.png",
+        "source": "/Users/kaleb/.android/build-cache/32a7c33c08fe9c05c5a52f914006231dea1f18c9/output/res/drawable-xxhdpi-v4/abc_tab_indicator_mtrl_alpha.9.png"
     },
     {
         "merged": "/Users/kaleb/StudioProjects/GyroscopeExplorer/app/build/intermediates/res/merged/debug/drawable-xxhdpi-v4/abc_scrubber_primary_mtrl_alpha.9.png",

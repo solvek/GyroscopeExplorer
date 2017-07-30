@@ -72,12 +72,12 @@
         "source": "/Users/kaleb/.android/build-cache/32a7c33c08fe9c05c5a52f914006231dea1f18c9/output/res/drawable-hdpi-v4/abc_btn_switch_to_on_mtrl_00012.9.png"
     },
     {
-        "merged": "/Users/kaleb/StudioProjects/GyroscopeExplorer/app/build/intermediates/res/merged/debug/drawable-hdpi-v4/notification_bg_normal.9.png",
-        "source": "/Users/kaleb/.android/build-cache/1275e2eff198f5267c39636c10d9fbb2e38a6561/output/res/drawable-hdpi-v4/notification_bg_normal.9.png"
-    },
-    {
         "merged": "/Users/kaleb/StudioProjects/GyroscopeExplorer/app/build/intermediates/res/merged/debug/drawable-hdpi-v4/abc_ic_menu_copy_mtrl_am_alpha.png",
         "source": "/Users/kaleb/.android/build-cache/32a7c33c08fe9c05c5a52f914006231dea1f18c9/output/res/drawable-hdpi-v4/abc_ic_menu_copy_mtrl_am_alpha.png"
+    },
+    {
+        "merged": "/Users/kaleb/StudioProjects/GyroscopeExplorer/app/build/intermediates/res/merged/debug/drawable-hdpi-v4/notification_bg_normal.9.png",
+        "source": "/Users/kaleb/.android/build-cache/1275e2eff198f5267c39636c10d9fbb2e38a6561/output/res/drawable-hdpi-v4/notification_bg_normal.9.png"
     },
     {
         "merged": "/Users/kaleb/StudioProjects/GyroscopeExplorer/app/build/intermediates/res/merged/debug/drawable-hdpi-v4/abc_list_divider_mtrl_alpha.9.png",

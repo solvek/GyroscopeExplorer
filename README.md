@@ -1,7 +1,9 @@
 GyroscopeExplorer
 =================
 
-![Alt text](http://www.kircherelectronics.com/resources/images/gyroscopeExplorer/gyroscope_explorer_home.png "Android Acceleration Explorer Screenshot")
+<img src="http://www.kircherelectronics.com/resources/images/gyroscopeExplorer/gyroscope_explorer_home.png" width="270">
+
+ <a href="https://play.google.com/store/apps/details?id=com.kircherelectronics.com.gyroscopeexplorer"><img src="http://www.kircherelectronics.com/resources/images/google-play-badge.png" width="270"></a>
 
 # Introduction
 
@@ -53,8 +55,6 @@ For more information on integrating the gyroscope to obtain a quaternion, rotati
 Useful Links:
 
 * [Gyroscope Explorer Homepage](http://www.kircherelectronics.com/gyroscopeexplorer/gyroscopeexplorer)
-
-* [Download Gyroscope Explorer from Google Play](https://play.google.com/store/apps/details?id=com.kircherelectronics.com.gyroscopeexplorer)
 
 Written by [Kircher Electronics](https://www.kircherelectronics.com)
 

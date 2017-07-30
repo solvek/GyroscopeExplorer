@@ -52,11 +52,5 @@ Kalman filtering, also known as linear quadratic estimation (LQE), is an algorit
 
 For more information on integrating the gyroscope to obtain a quaternion, rotation matrix or orientation, see [here](http://www.kircherelectronics.com/blog/index.php/11-android/sensors/15-android-gyroscope-basics).
 
-Useful Links:
-
-* [Gyroscope Explorer Homepage](http://www.kircherelectronics.com/gyroscopeexplorer/gyroscopeexplorer)
-
-Written by [Kircher Electronics](https://www.kircherelectronics.com)
-
 Published under [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 

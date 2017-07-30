@@ -1,15 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-
-    <PreferenceCategory android:title="Calibrated Gyroscope" >
-        <SwitchPreference
-            android:defaultValue="true"
-            android:dialogTitle="Enabled Calibrated Gyroscope"
-            android:key="calibrated_gyroscope_preference"
-            android:summaryOff="Calibration is Off"
-            android:summaryOn="Calibration is On"
-            android:title="Enable Calibrated Gyroscope" />
-    </PreferenceCategory>
     <PreferenceCategory android:title="Mean Filter Smoothing" >
         <SwitchPreference
             android:defaultValue="false"

@@ -16,6 +16,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +24,7 @@ import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.kircherelectronics.fsensor.filter.averaging.MeanFilter;
 import com.kircherelectronics.gyroscopeexplorer.R;
 import com.kircherelectronics.fsensor.filter.fusion.OrientationComplimentaryFusion;
 import com.kircherelectronics.fsensor.filter.fusion.OrientationFusion;
@@ -62,7 +64,7 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
     // Indicate if the output should be logged to a .csv file
     private boolean logData = false;
 
-    private boolean imuOCfQuaternionEnabled;
+    private boolean meanFilterEnabled;
     private boolean imuOKfQuaternionEnabled;
 
     private float[] fusedOrientation = new float[3];
@@ -86,6 +88,7 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
     private TextView tvZAxis;
 
     private OrientationFusion orientationFusion;
+    private MeanFilter meanFilter;
 
     private SensorManager sensorManager;
 
@@ -97,6 +100,7 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
 
         setContentView(R.layout.activity_gyroscope);
         dataLogger = new DataLoggerManager(this);
+        meanFilter = new MeanFilter();
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         initUI();
     }
@@ -184,6 +188,11 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
             System.arraycopy(event.values, 0, rotation, 0, event.values.length);
             // Filter the rotation
             fusedOrientation = orientationFusion.filter(this.rotation);
+
+            if(meanFilterEnabled) {
+                fusedOrientation = meanFilter.filter(fusedOrientation);
+            }
+
             dataLogger.setRotation(fusedOrientation);
         }
     }
@@ -204,12 +213,19 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
         }
     }
 
-    private boolean getPrefImuOCfQuaternionEnabled() {
+    private boolean getPrefMeanFilterEnabled() {
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
 
-        return prefs.getBoolean(ConfigActivity.IMUOCF_QUATERNION_ENABLED_KEY,
+        return prefs.getBoolean(ConfigActivity.MEAN_FILTER_SMOOTHING_ENABLED_KEY,
                 false);
+    }
+
+    private float getPrefMeanFilterTimeConstant() {
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext());
+
+        return prefs.getFloat(ConfigActivity.MEAN_FILTER_SMOOTHING_TIME_CONSTANT_KEY, 0.5f);
     }
 
     private boolean getPrefImuOKfQuaternionEnabled() {
@@ -226,11 +242,6 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
 
         return Float.valueOf(prefs.getString(
                 ConfigActivity.IMUOCF_QUATERNION_COEFF_KEY, "0.5"));
-    }
-
-    private boolean gyroscopeAvailable() {
-        return getPackageManager().hasSystemFeature(
-                PackageManager.FEATURE_SENSOR_GYROSCOPE);
     }
 
     private void initStartButton() {
@@ -253,6 +264,12 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
      * Initialize the UI.
      */
     private void initUI() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if(getSupportActionBar()!=null) {
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
         // Initialize the calibrated text views
         tvXAxis = this.findViewById(R.id.value_x_axis_calibrated);
         tvYAxis = this.findViewById(R.id.value_y_axis_calibrated);
@@ -287,8 +304,12 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
     }
 
     private void readPrefs() {
-        imuOCfQuaternionEnabled = getPrefImuOCfQuaternionEnabled();
+        meanFilterEnabled = getPrefMeanFilterEnabled();
         imuOKfQuaternionEnabled = getPrefImuOKfQuaternionEnabled();
+
+        if(meanFilterEnabled) {
+            meanFilter.setTimeConstant(getPrefMeanFilterTimeConstant());
+        }
     }
 
     private void showHelpDialog() {

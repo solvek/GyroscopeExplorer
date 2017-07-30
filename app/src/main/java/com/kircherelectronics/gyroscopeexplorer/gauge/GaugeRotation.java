@@ -1,4 +1,4 @@
-package com.kircherelectronics.gyroscopeexplorer.activity.gauge;
+package com.kircherelectronics.gyroscopeexplorer.gauge;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -32,61 +32,10 @@ import android.view.View;
  * Draws an analog gauge for displaying rotation measurements in three-space
  * from device sensors.
  * 
- * Note that after Android 4.0 TextureView exists, as does SurfaceView for
- * Android 3.0 which won't hog the UI thread like View will. This should only be
- * used with devices or certain libraries that require View.
- * 
  * @author Kaleb
- * @version %I%, %G%
- * http://developer.android.com/reference/android/view/View.html
  */
 public final class GaugeRotation extends View
 {
-
-	/*
-	 * Developer Note: In the interest of keeping everything as fast as
-	 * possible, only the measurements are redrawn, the gauge background and
-	 * display information are drawn once per device orientation and then cached
-	 * so they can be reused. All allocation and reclaiming of memory should
-	 * occur before and after the handler is posted to the thread, but never
-	 * while the thread is running. Allocation and reclamation of memory while
-	 * the handler is posted to the thread will cause the GC to run, resulting
-	 * in long delays (up to 600ms) while the GC cleans up memory. The frame
-	 * rate to drop dramatically if the GC is running often, so try to keep it
-	 * happy and out of the way.
-	 * 
-	 * Avoid iterators, Set or Map collections (use SparseArray), + to
-	 * concatenate Strings (use StringBuffers) and above all else boxed
-	 * primitives (Integer, Double, Float, etc).
-	 */
-
-	/*
-	 * Developer Note: There are some things to keep in mind when it comes to
-	 * Android and hardware acceleration. What we see in Android 4.0 is �full�
-	 * hardware acceleration. All UI elements in windows, and third-party apps
-	 * will have access to the GPU for rendering. Android 3.0 had the same
-	 * system, but now developers will be able to specifically target Android
-	 * 4.0 with hardware acceleration. Google is encouraging developers to
-	 * update apps to be fully-compatible with this system by adding the
-	 * hardware acceleration tag in an app�s manifest. Android has always used
-	 * some hardware accelerated drawing.
-	 * 
-	 * Since before 1.0 all window compositing to the display has been done with
-	 * hardware. "Full" hardware accelerated drawing within a window was added
-	 * in Android 3.0. The implementation in Android 4.0 is not any more full
-	 * than in 3.0. Starting with 3.0, if you set the flag in your app saying
-	 * that hardware accelerated drawing is allowed, then all drawing to the
-	 * application�s windows will be done with the GPU. The main change in this
-	 * regard in Android 4.0 is that now apps that are explicitly targeting 4.0
-	 * or higher will have acceleration enabled by default rather than having to
-	 * put android:handwareAccelerated="true" in their manifest. (And the reason
-	 * this isn�t just turned on for all existing applications is that some
-	 * types of drawing operations can�t be supported well in hardware and it
-	 * also impacts the behavior when an application asks to have a part of its
-	 * UI updated. Forcing hardware accelerated drawing upon existing apps will
-	 * break a significant number of them, from subtly to significantly.)
-	 */
-
 	private static final String tag = GaugeRotation.class.getSimpleName();
 
 	// Keep track of the rotation of the device
@@ -105,10 +54,6 @@ public final class GaugeRotation extends View
 
 	private RectF rimRect;
 	private RectF rimOuterRect;
-	private RectF rimTopRect;
-	private RectF rimBottomRect;
-	private RectF rimLeftRect;
-	private RectF rimRightRect;
 	private RectF skyBackgroundRect;
 
 	/**
@@ -179,29 +124,9 @@ public final class GaugeRotation extends View
 				+ rimOuterSize, rimRect.right - rimOuterSize, rimRect.bottom
 				- rimOuterSize);
 
-		rimTopRect = new RectF(0.5f, 0.106f, 0.5f, 0.06f);
-		rimTopRect.set(rimTopRect.left + rimOuterSize, rimTopRect.top
-				+ rimOuterSize, rimTopRect.right - rimOuterSize,
-				rimTopRect.bottom - rimOuterSize);
-
-		rimBottomRect = new RectF(0.5f, 0.94f, 0.5f, 0.894f);
-		rimBottomRect.set(rimBottomRect.left + rimOuterSize, rimBottomRect.top
-				+ rimOuterSize, rimBottomRect.right - rimOuterSize,
-				rimBottomRect.bottom - rimOuterSize);
-
-		rimLeftRect = new RectF(0.106f, 0.5f, 0.06f, 0.5f);
-		rimLeftRect.set(rimLeftRect.left + rimOuterSize, rimLeftRect.top
-				+ rimOuterSize, rimLeftRect.right - rimOuterSize,
-				rimLeftRect.bottom - rimOuterSize);
-
-		rimRightRect = new RectF(0.94f, 0.5f, 0.894f, 0.5f);
-		rimRightRect.set(rimRightRect.left + rimOuterSize, rimRightRect.top
-				+ rimOuterSize, rimRightRect.right - rimOuterSize,
-				rimRightRect.bottom - rimOuterSize);
-
 		rimOuterPaint = new Paint();
 		rimOuterPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-		rimOuterPaint.setColor(Color.rgb(255, 255, 255));
+		rimOuterPaint.setColor(Color.rgb(158,158,158));
 
 		float rimSize = 0.02f;
 
@@ -212,7 +137,7 @@ public final class GaugeRotation extends View
 		skyPaint = new Paint();
 		skyPaint.setAntiAlias(true);
 		skyPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-		skyPaint.setColor(Color.WHITE);
+		skyPaint.setColor(Color.rgb(158,158,158));
 
 		backgroundPaint = new Paint();
 		backgroundPaint.setFilterBitmap(true);
@@ -264,14 +189,6 @@ public final class GaugeRotation extends View
 		canvas.drawOval(rimOuterRect, rimOuterPaint);
 		// Then draw the small black line
 		canvas.drawOval(rimRect, rimPaint);
-
-		canvas.drawRect(rimTopRect, rimOuterPaint);
-		// bottom rect
-		canvas.drawRect(rimBottomRect, rimOuterPaint);
-		// left rect
-		canvas.drawRect(rimLeftRect, rimOuterPaint);
-		// right rect
-		canvas.drawRect(rimRightRect, rimOuterPaint);
 	}
 
 	/**

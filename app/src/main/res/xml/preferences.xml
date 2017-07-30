@@ -27,48 +27,15 @@
             android:key="mean_filter_smoothing_time_constant_preference"
             android:title="Set Mean Filter Time Constant" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="IMUOCF Complimentary Orientation" >
-        <SwitchPreference
-            android:defaultValue="false"
-            android:dialogTitle="Enable IMUOCF Orienation"
-            android:key="imuocf_orienation_enabled_preference"
-            android:summaryOff="IMUOCF Orienation is Off"
-            android:summaryOn="IMUOCF Orienation is On"
-            android:title="Enable IMUOCF Orienation" />
 
-        <EditTextPreference
-            android:defaultValue="@string/value_default_complimentary_filter"
-            android:dialogMessage="Set Filter Coefficient"
-            android:dialogTitle="Coefficient"
-            android:inputType="numberDecimal"
-            android:key="imuocf_orienation_coeff_preference"
-            android:title="Set Filter Coefficient" />
-    </PreferenceCategory>
-    <PreferenceCategory android:title="IMUOCF Complimentary Rotation Matrix" >
+    <PreferenceCategory android:title="Complimentary Quaternion" >
         <SwitchPreference
             android:defaultValue="false"
-            android:dialogTitle="Enable IMUOCF Rotation Matrix"
-            android:key="imuocf_rotation_matrix_enabled_preference"
-            android:summaryOff="IMUOCF Rotation Matrix is Off"
-            android:summaryOn="IMUOCF Rotation Matrix is On"
-            android:title="Enable IMUOCF Rotation Matrix" />
-
-        <EditTextPreference
-            android:defaultValue="@string/value_default_complimentary_filter"
-            android:dialogMessage="Set Filter Coefficient"
-            android:dialogTitle="Coefficient"
-            android:inputType="numberDecimal"
-            android:key="imuocf_rotation_matrix_coeff_preference"
-            android:title="Set Filter Coefficient" />
-    </PreferenceCategory>
-    <PreferenceCategory android:title="IMUOCF Complimentary Quaternion" >
-        <SwitchPreference
-            android:defaultValue="false"
-            android:dialogTitle="Enable IMUOCF Quaternion"
+            android:dialogTitle="Enable Complimentary Quaternion"
             android:key="imuocf_quaternion_enabled_preference"
-            android:summaryOff="IMUOCF Quaternion is Off"
-            android:summaryOn="IMUOCF Quaternion is On"
-            android:title="Enable IMUOCF Quaternion" />
+            android:summaryOff="Complimentary Quaternion is Off"
+            android:summaryOn="Complimentary Quaternion is On"
+            android:title="Enable Complimentary Quaternion" />
 
         <EditTextPreference
             android:defaultValue="@string/value_default_complimentary_filter"
@@ -78,15 +45,15 @@
             android:key="imuocf_quaternion_coeff_preference"
             android:title="Set Filter Coefficient" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="IMUOKF Kalman Quaternion" >
+    <PreferenceCategory android:title="Kalman Quaternion" >
         <SwitchPreference
             android:defaultValue="false"
-            android:dialogTitle="Enable IMUOKF Quaternion"
+            android:dialogTitle="Enable Kalman Quaternion"
             android:inputType="numberDecimal"
             android:key="imuokf_quaternion_enabled_preference"
-            android:summaryOff="IMUOKF Quaternion is Off"
-            android:summaryOn="IMUOKF Quaternion is On"
-            android:title="Enable IMUOKF Quaternion" />
+            android:summaryOff="Kalman Quaternion is Off"
+            android:summaryOn="Kalman Quaternion is On"
+            android:title="Enable Kalman Quaternion" />
     </PreferenceCategory>
 
 </PreferenceScreen>

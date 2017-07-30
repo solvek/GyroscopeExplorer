@@ -3,8 +3,7 @@
 
     <string name="app_name">GyroscopeExplorer</string>
     <string name="sensor_label">Sensor</string>
-    <string name="sensor_calibrated_name">GyroscopeCalibrated</string>
-    <string name="sensor_uncalibrated_name">GyroscopeUncalibrated</string>
+    <string name="sensor_calibrated_name">Gyroscope</string>
     <string name="sensor_active">Active</string>
     <string name="sensor_unavailable">Unavailable</string>
     <string name="action_config">Settings</string>

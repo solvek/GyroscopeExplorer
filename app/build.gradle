@@ -1,13 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion '25.0.0'
+    compileSdkVersion 26
+    buildToolsVersion '26.0.0'
 
     defaultConfig {
         applicationId "com.kircherelectronics.com.gyroscopeexplorer"
         minSdkVersion 14
-        targetSdkVersion 22
+        targetSdkVersion 26
+        versionCode = 9
+        versionName = "1.5.2"
     }
 
     buildTypes {
@@ -19,6 +21,11 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:22.2.1'
-    compile files('libs/commons-math3-3.5.jar')
+    compile 'com.android.support:support-v4:26.0.0'
+    compile 'com.android.support:appcompat-v7:26.0.0'
+    compile 'com.github.KalebKE:FSensor:v1.0'
+    compile 'org.apache.commons:commons-csv:1.4'
+    compile 'android.arch.lifecycle:runtime:1.0.0-alpha6'
+    compile 'android.arch.lifecycle:extensions:1.0.0-alpha6'
+    annotationProcessor "android.arch.lifecycle:compiler:1.0.0-alpha6"
 }

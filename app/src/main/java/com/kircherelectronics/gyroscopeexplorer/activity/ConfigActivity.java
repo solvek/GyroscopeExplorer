@@ -9,7 +9,7 @@ import android.preference.PreferenceActivity;
 import android.preference.SwitchPreference;
 import android.widget.Toast;
 
-import com.kircherelectronics.com.gyroscopeexplorer.R;
+import com.kircherelectronics.gyroscopeexplorer.R;
 
 /*
  * Copyright 2013-2017, Kaleb Kircher - Kircher Engineering, LLC

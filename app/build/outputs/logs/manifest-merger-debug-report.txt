@@ -1,75 +1,123 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:2:1-34:12
+ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:2:1-29:12
 	package
-		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:3:5-59
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:3:5-55
 		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
 		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
 	android:versionName
-		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:5:5-32
-		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
-		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
-	android:versionCode
-		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:4:5-28
 		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
 		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
 	xmlns:android
 		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:2:11-69
-uses-sdk
-ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:7:5-9:41
-MERGED from [com.android.support:support-v4:22.2.1] /Users/kaleb/.android/build-cache/9b760a75037b3e95bd2caede26455c4007718907/output/AndroidManifest.xml:20:5-43
-	android:targetSdkVersion
-		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:9:9-38
-		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
-		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
-	android:minSdkVersion
-		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:8:9-35
+	android:versionCode
 		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
 		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
 uses-feature#android.hardware.sensor.gyroscope
-ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:11:5-93
+ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:5:5-93
 	android:required
-		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:11:68-91
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:5:68-91
 	android:name
-		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:11:19-67
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:5:19-67
 uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
-ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:12:5-81
+ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:6:5-81
 	android:name
-		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:12:22-78
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:6:22-78
 uses-permission#android.permission.MOUNT_UNMOUNT_FILESYSTEMS
-ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:13:5-84
+ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:7:5-84
 	android:name
-		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:13:22-81
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:7:22-81
 application
-ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:15:5-32:19
-MERGED from [com.android.support:support-v4:22.2.1] /Users/kaleb/.android/build-cache/9b760a75037b3e95bd2caede26455c4007718907/output/AndroidManifest.xml:22:5-20
+ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:9:5-27:19
+MERGED from [com.android.support:appcompat-v7:26.0.0] /Users/kaleb/.android/build-cache/32a7c33c08fe9c05c5a52f914006231dea1f18c9/output/AndroidManifest.xml:25:5-29:19
+MERGED from [com.android.support:support-v4:26.0.0] /Users/kaleb/.android/build-cache/bb0495933c755e5c25955e2db9bdac10a0e0bbfe/output/AndroidManifest.xml:25:5-29:19
+MERGED from [com.android.support:support-media-compat:26.0.0] /Users/kaleb/.android/build-cache/6bddc2d2e62896b94d4359b41d3c3602b4d11364/output/AndroidManifest.xml:25:5-29:19
+MERGED from [com.android.support:animated-vector-drawable:26.0.0] /Users/kaleb/.android/build-cache/84a68b182e9cf219b55f2d5a5fae8a9589933d43/output/AndroidManifest.xml:22:5-26:19
+MERGED from [com.android.support:support-vector-drawable:26.0.0] /Users/kaleb/.android/build-cache/047ed3a8fd7d7566a976b4481a5b26c266b4e155/output/AndroidManifest.xml:22:5-26:19
+MERGED from [com.github.KalebKE:FSensor:v1.0] /Users/kaleb/.android/build-cache/c8a69c03260104e6050b53343a12bc41ef51337c/output/AndroidManifest.xml:11:5-15:19
+MERGED from [android.arch.lifecycle:extensions:1.0.0-alpha6] /Users/kaleb/.android/build-cache/d16b7caa1ed1e5c4b6331b53f879d448784c82ab/output/AndroidManifest.xml:26:5-32:19
+MERGED from [com.android.support:support-fragment:26.0.0] /Users/kaleb/.android/build-cache/9ab803690b9f72dfd891f82c0038a16a6df086a1/output/AndroidManifest.xml:25:5-29:19
+MERGED from [com.android.support:support-core-ui:26.0.0] /Users/kaleb/.android/build-cache/cb6cab8df45e14820af52f0d5763adf04f1ee074/output/AndroidManifest.xml:25:5-29:19
+MERGED from [com.android.support:support-core-utils:26.0.0] /Users/kaleb/.android/build-cache/a4f9f8ef5380bad97db09dcce6c13979c8f41e52/output/AndroidManifest.xml:25:5-29:19
+MERGED from [com.android.support:support-compat:26.0.0] /Users/kaleb/.android/build-cache/1275e2eff198f5267c39636c10d9fbb2e38a6561/output/AndroidManifest.xml:25:5-29:19
 	android:label
-		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:18:9-41
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:12:9-41
+	android:supportsRtl
+		ADDED from [com.github.KalebKE:FSensor:v1.0] /Users/kaleb/.android/build-cache/c8a69c03260104e6050b53343a12bc41ef51337c/output/AndroidManifest.xml:14:9-35
 	android:allowBackup
-		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:16:9-35
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:10:9-35
 	android:icon
-		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:17:9-52
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:11:9-52
+	android:theme
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:13:9-40
 activity#com.kircherelectronics.gyroscopeexplorer.activity.GyroscopeActivity
-ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:19:9-28:20
+ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:14:9-23:20
 	android:screenOrientation
-		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:22:13-49
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:17:13-49
 	android:label
-		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:21:13-45
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:16:13-45
 	android:name
-		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:20:13-95
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:15:13-95
 intent-filter#android.intent.action.MAIN+android.intent.category.LAUNCHER
-ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:23:13-27:29
+ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:18:13-22:29
 action#android.intent.action.MAIN
-ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:24:17-69
+ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:19:17-69
 	android:name
-		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:24:25-66
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:19:25-66
 category#android.intent.category.LAUNCHER
-ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:26:17-77
+ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:21:17-77
 	android:name
-		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:26:27-74
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:21:27-74
 activity#com.kircherelectronics.gyroscopeexplorer.activity.ConfigActivity
-ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:29:9-31:52
+ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:24:9-26:52
 	android:screenOrientation
-		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:31:13-49
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:26:13-49
 	android:name
-		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:30:13-92
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:25:13-92
+uses-sdk
+INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
+MERGED from [com.android.support:appcompat-v7:26.0.0] /Users/kaleb/.android/build-cache/32a7c33c08fe9c05c5a52f914006231dea1f18c9/output/AndroidManifest.xml:21:5-23:78
+MERGED from [com.android.support:support-v4:26.0.0] /Users/kaleb/.android/build-cache/bb0495933c755e5c25955e2db9bdac10a0e0bbfe/output/AndroidManifest.xml:21:5-23:54
+MERGED from [com.android.support:support-media-compat:26.0.0] /Users/kaleb/.android/build-cache/6bddc2d2e62896b94d4359b41d3c3602b4d11364/output/AndroidManifest.xml:21:5-23:63
+MERGED from [com.android.support:animated-vector-drawable:26.0.0] /Users/kaleb/.android/build-cache/84a68b182e9cf219b55f2d5a5fae8a9589933d43/output/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-vector-drawable:26.0.0] /Users/kaleb/.android/build-cache/047ed3a8fd7d7566a976b4481a5b26c266b4e155/output/AndroidManifest.xml:20:5-44
+MERGED from [com.github.KalebKE:FSensor:v1.0] /Users/kaleb/.android/build-cache/c8a69c03260104e6050b53343a12bc41ef51337c/output/AndroidManifest.xml:7:5-9:41
+MERGED from [android.arch.lifecycle:extensions:1.0.0-alpha6] /Users/kaleb/.android/build-cache/d16b7caa1ed1e5c4b6331b53f879d448784c82ab/output/AndroidManifest.xml:22:5-24:41
+MERGED from [android.arch.lifecycle:runtime:1.0.0-alpha6] /Users/kaleb/.android/build-cache/4ae8f1c43d247f04f05980b1973ce13f8b325678/output/AndroidManifest.xml:22:5-24:41
+MERGED from [android.arch.core:runtime:1.0.0-alpha6] /Users/kaleb/.android/build-cache/c26e91b10b1945a40e3cc7162f49e096e8d7ede3/output/AndroidManifest.xml:22:5-24:41
+MERGED from [com.android.support:support-fragment:26.0.0] /Users/kaleb/.android/build-cache/9ab803690b9f72dfd891f82c0038a16a6df086a1/output/AndroidManifest.xml:21:5-23:60
+MERGED from [com.android.support:support-core-ui:26.0.0] /Users/kaleb/.android/build-cache/cb6cab8df45e14820af52f0d5763adf04f1ee074/output/AndroidManifest.xml:21:5-23:58
+MERGED from [com.android.support:support-core-utils:26.0.0] /Users/kaleb/.android/build-cache/a4f9f8ef5380bad97db09dcce6c13979c8f41e52/output/AndroidManifest.xml:21:5-23:61
+MERGED from [com.android.support:support-compat:26.0.0] /Users/kaleb/.android/build-cache/1275e2eff198f5267c39636c10d9fbb2e38a6561/output/AndroidManifest.xml:21:5-23:58
+	tools:overrideLibrary
+		ADDED from [com.android.support:appcompat-v7:26.0.0] /Users/kaleb/.android/build-cache/32a7c33c08fe9c05c5a52f914006231dea1f18c9/output/AndroidManifest.xml:23:9-75
+	android:targetSdkVersion
+		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
+		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
+		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
+meta-data#android.support.VERSION
+ADDED from [com.android.support:appcompat-v7:26.0.0] /Users/kaleb/.android/build-cache/32a7c33c08fe9c05c5a52f914006231dea1f18c9/output/AndroidManifest.xml:26:9-28:38
+MERGED from [com.android.support:support-v4:26.0.0] /Users/kaleb/.android/build-cache/bb0495933c755e5c25955e2db9bdac10a0e0bbfe/output/AndroidManifest.xml:26:9-28:38
+MERGED from [com.android.support:support-media-compat:26.0.0] /Users/kaleb/.android/build-cache/6bddc2d2e62896b94d4359b41d3c3602b4d11364/output/AndroidManifest.xml:26:9-28:38
+MERGED from [com.android.support:animated-vector-drawable:26.0.0] /Users/kaleb/.android/build-cache/84a68b182e9cf219b55f2d5a5fae8a9589933d43/output/AndroidManifest.xml:23:9-25:38
+MERGED from [com.android.support:support-vector-drawable:26.0.0] /Users/kaleb/.android/build-cache/047ed3a8fd7d7566a976b4481a5b26c266b4e155/output/AndroidManifest.xml:23:9-25:38
+MERGED from [com.android.support:support-fragment:26.0.0] /Users/kaleb/.android/build-cache/9ab803690b9f72dfd891f82c0038a16a6df086a1/output/AndroidManifest.xml:26:9-28:38
+MERGED from [com.android.support:support-core-ui:26.0.0] /Users/kaleb/.android/build-cache/cb6cab8df45e14820af52f0d5763adf04f1ee074/output/AndroidManifest.xml:26:9-28:38
+MERGED from [com.android.support:support-core-utils:26.0.0] /Users/kaleb/.android/build-cache/a4f9f8ef5380bad97db09dcce6c13979c8f41e52/output/AndroidManifest.xml:26:9-28:38
+MERGED from [com.android.support:support-compat:26.0.0] /Users/kaleb/.android/build-cache/1275e2eff198f5267c39636c10d9fbb2e38a6561/output/AndroidManifest.xml:26:9-28:38
+	android:value
+		ADDED from [com.android.support:appcompat-v7:26.0.0] /Users/kaleb/.android/build-cache/32a7c33c08fe9c05c5a52f914006231dea1f18c9/output/AndroidManifest.xml:28:13-35
+	android:name
+		ADDED from [com.android.support:appcompat-v7:26.0.0] /Users/kaleb/.android/build-cache/32a7c33c08fe9c05c5a52f914006231dea1f18c9/output/AndroidManifest.xml:27:13-51
+provider#android.arch.lifecycle.LifecycleRuntimeTrojanProvider
+ADDED from [android.arch.lifecycle:extensions:1.0.0-alpha6] /Users/kaleb/.android/build-cache/d16b7caa1ed1e5c4b6331b53f879d448784c82ab/output/AndroidManifest.xml:27:9-31:43
+	android:authorities
+		ADDED from [android.arch.lifecycle:extensions:1.0.0-alpha6] /Users/kaleb/.android/build-cache/d16b7caa1ed1e5c4b6331b53f879d448784c82ab/output/AndroidManifest.xml:29:13-68
+	android:multiprocess
+		ADDED from [android.arch.lifecycle:extensions:1.0.0-alpha6] /Users/kaleb/.android/build-cache/d16b7caa1ed1e5c4b6331b53f879d448784c82ab/output/AndroidManifest.xml:31:13-40
+	android:exported
+		ADDED from [android.arch.lifecycle:extensions:1.0.0-alpha6] /Users/kaleb/.android/build-cache/d16b7caa1ed1e5c4b6331b53f879d448784c82ab/output/AndroidManifest.xml:30:13-37
+	android:name
+		ADDED from [android.arch.lifecycle:extensions:1.0.0-alpha6] /Users/kaleb/.android/build-cache/d16b7caa1ed1e5c4b6331b53f879d448784c82ab/output/AndroidManifest.xml:28:13-81

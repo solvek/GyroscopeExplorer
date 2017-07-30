@@ -1,41 +1,36 @@
 package com.kircherelectronics.gyroscopeexplorer.activity;
 
-import android.app.Activity;
-import android.app.AlertDialog;
+import android.Manifest;
 import android.app.Dialog;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.media.MediaScannerConnection;
-import android.net.Uri;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.kircherelectronics.com.gyroscopeexplorer.R;
-import com.kircherelectronics.gyroscopeexplorer.activity.filter.GyroscopeOrientation;
-import com.kircherelectronics.gyroscopeexplorer.activity.filter.ImuOCfOrientation;
-import com.kircherelectronics.gyroscopeexplorer.activity.filter.ImuOCfQuaternion;
-import com.kircherelectronics.gyroscopeexplorer.activity.filter.ImuOCfRotationMatrix;
-import com.kircherelectronics.gyroscopeexplorer.activity.filter.ImuOKfQuaternion;
-import com.kircherelectronics.gyroscopeexplorer.activity.filter.Orientation;
-import com.kircherelectronics.gyroscopeexplorer.activity.gauge.GaugeBearing;
-import com.kircherelectronics.gyroscopeexplorer.activity.gauge.GaugeRotation;
+import com.kircherelectronics.gyroscopeexplorer.R;
+import com.kircherelectronics.fsensor.filter.fusion.OrientationComplimentaryFusion;
+import com.kircherelectronics.fsensor.filter.fusion.OrientationFusion;
+import com.kircherelectronics.fsensor.filter.fusion.OrientationKalmanFusion;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Calendar;
+import com.kircherelectronics.gyroscopeexplorer.datalogger.DataLoggerManager;
+import  com.kircherelectronics.gyroscopeexplorer.gauge.*;
+import com.kircherelectronics.gyroscopeexplorer.view.VectorDrawableButton;
 
 /*
  * Copyright 2013-2017, Kaleb Kircher - Kircher Engineering, LLC
@@ -59,27 +54,22 @@ import java.util.Calendar;
  *
  * @author Kaleb
  */
-public class GyroscopeActivity extends Activity implements Runnable {
+public class GyroscopeActivity extends AppCompatActivity implements SensorEventListener {
     private static final String tag = GyroscopeActivity.class.getSimpleName();
+
+    private final static int WRITE_EXTERNAL_STORAGE_REQUEST = 1000;
 
     // Indicate if the output should be logged to a .csv file
     private boolean logData = false;
-    private boolean dataReady = false;
 
-    private boolean imuOCfOrienationEnabled;
-    private boolean imuOCfRotationMatrixEnabled;
     private boolean imuOCfQuaternionEnabled;
     private boolean imuOKfQuaternionEnabled;
-    private boolean isCalibrated;
-    private boolean gyroscopeAvailable;
 
-    private float[] vOrientation = new float[3];
+    private float[] fusedOrientation = new float[3];
+    private float[] acceleration = new float[4];
+    private float[] magnetic = new float[3];
+    private float[] rotation = new float[3];
 
-    // The generation of the log output
-    private int generation = 0;
-
-    // Log output time stamp
-    private long logTime = 0;
 
     // The gauge views. Note that these are views and UI hogs since they run in
     // the UI thread, not ideal, but easy to use.
@@ -89,37 +79,27 @@ public class GyroscopeActivity extends Activity implements Runnable {
     // Handler for the UI plots so everything plots smoothly
     protected Handler handler;
 
-    private Orientation orientation;
-
     protected Runnable runable;
-
-    // Acceleration plot titles
-    private String plotAccelXAxisTitle = "Azimuth";
-    private String plotAccelYAxisTitle = "Pitch";
-    private String plotAccelZAxisTitle = "Roll";
-
-    // Output log
-    private String log;
 
     private TextView tvXAxis;
     private TextView tvYAxis;
     private TextView tvZAxis;
-    private TextView tvStatus;
 
-    private Thread thread;
+    private OrientationFusion orientationFusion;
+
+    private SensorManager sensorManager;
+
+    private DataLoggerManager dataLogger;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_gyroscope);
-
+        dataLogger = new DataLoggerManager(this);
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         initUI();
-
-        gyroscopeAvailable = gyroscopeAvailable();
     }
-
-    ;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -138,7 +118,7 @@ public class GyroscopeActivity extends Activity implements Runnable {
 
             // Reset everything
             case R.id.action_reset:
-                orientation.reset();
+                orientationFusion.reset();
                 return true;
 
             // Reset everything
@@ -161,10 +141,23 @@ public class GyroscopeActivity extends Activity implements Runnable {
     public void onResume() {
         super.onResume();
 
+        requestPermissions();
         readPrefs();
         reset();
 
-        orientation.onResume();
+        sensorManager.registerListener(this, sensorManager
+                        .getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                SensorManager.SENSOR_DELAY_FASTEST);
+
+        // Register for sensor updates.
+        sensorManager.registerListener(this, sensorManager
+                        .getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
+                SensorManager.SENSOR_DELAY_FASTEST);
+
+        // Register for sensor updates.
+        sensorManager.registerListener(this,
+                sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
+                SensorManager.SENSOR_DELAY_FASTEST);
 
         handler.post(runable);
     }
@@ -172,46 +165,43 @@ public class GyroscopeActivity extends Activity implements Runnable {
     public void onPause() {
         super.onPause();
 
-        orientation.onPause();
-
+        sensorManager.unregisterListener(this);
         handler.removeCallbacks(runable);
     }
 
-    /**
-     * Output and logs are run on their own thread to keep the UI from hanging
-     * and the output smooth.
-     */
     @Override
-    public void run() {
-        while (logData && !Thread.currentThread().isInterrupted()) {
-            logData();
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            // Android reuses events, so you probably want a copy
+            System.arraycopy(event.values, 0, acceleration, 0, event.values.length);
+            orientationFusion.setAcceleration(acceleration);
+        } else  if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+            // Android reuses events, so you probably want a copy
+            System.arraycopy(event.values, 0, magnetic, 0, event.values.length);
+            orientationFusion.setMagneticField(this.magnetic);
+        } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+            // Android reuses events, so you probably want a copy
+            System.arraycopy(event.values, 0, rotation, 0, event.values.length);
+            // Filter the rotation
+            fusedOrientation = orientationFusion.filter(this.rotation);
+            dataLogger.setRotation(fusedOrientation);
         }
-
-        Thread.currentThread().interrupt();
     }
 
-    private boolean getPrefCalibratedGyroscopeEnabled() {
-        SharedPreferences prefs = PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext());
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {}
 
-        return prefs.getBoolean(
-                ConfigActivity.CALIBRATED_GYROSCOPE_ENABLED_KEY, true);
-    }
-
-    private boolean getPrefImuOCfOrientationEnabled() {
-        SharedPreferences prefs = PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext());
-
-        return prefs.getBoolean(ConfigActivity.IMUOCF_ORIENTATION_ENABLED_KEY,
-                false);
-    }
-
-    private boolean getPrefImuOCfRotationMatrixEnabled() {
-        SharedPreferences prefs = PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext());
-
-        return prefs.getBoolean(
-                ConfigActivity.IMUOCF_ROTATION_MATRIX_ENABLED_KEY, false);
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case WRITE_EXTERNAL_STORAGE_REQUEST: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                } else {
+                }
+                return;
+            }
+        }
     }
 
     private boolean getPrefImuOCfQuaternionEnabled() {
@@ -230,22 +220,6 @@ public class GyroscopeActivity extends Activity implements Runnable {
                 false);
     }
 
-    private float getPrefImuOCfOrienationCoeff() {
-        SharedPreferences prefs = PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext());
-
-        return Float.valueOf(prefs.getString(
-                ConfigActivity.IMUOCF_ORIENTATION_COEFF_KEY, "0.5"));
-    }
-
-    private float getPrefImuOCfRotationMatrixCoeff() {
-        SharedPreferences prefs = PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext());
-
-        return Float.valueOf(prefs.getString(
-                ConfigActivity.IMUOCF_ROTATION_MATRIX_COEFF_KEY, "0.5"));
-    }
-
     private float getPrefImuOCfQuaternionCoeff() {
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
@@ -260,23 +234,15 @@ public class GyroscopeActivity extends Activity implements Runnable {
     }
 
     private void initStartButton() {
-        final Button button = (Button) findViewById(R.id.button_start);
+        final VectorDrawableButton button = findViewById(R.id.button_start);
 
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (!logData) {
-                    button.setBackgroundResource(R.drawable.stop_button_background);
                     button.setText("Stop Log");
-
                     startDataLog();
-
-                    thread = new Thread(GyroscopeActivity.this);
-
-                    thread.start();
                 } else {
-                    button.setBackgroundResource(R.drawable.start_button_background);
                     button.setText("Start Log");
-
                     stopDataLog();
                 }
             }
@@ -288,103 +254,24 @@ public class GyroscopeActivity extends Activity implements Runnable {
      */
     private void initUI() {
         // Initialize the calibrated text views
-        tvXAxis = (TextView) this.findViewById(R.id.value_x_axis_calibrated);
-        tvYAxis = (TextView) this.findViewById(R.id.value_y_axis_calibrated);
-        tvZAxis = (TextView) this.findViewById(R.id.value_z_axis_calibrated);
-        tvStatus = (TextView) this.findViewById(R.id.label_sensor_status);
+        tvXAxis = this.findViewById(R.id.value_x_axis_calibrated);
+        tvYAxis = this.findViewById(R.id.value_y_axis_calibrated);
+        tvZAxis = this.findViewById(R.id.value_z_axis_calibrated);
 
         // Initialize the calibrated gauges views
-        gaugeBearingCalibrated = (GaugeBearing) findViewById(R.id.gauge_bearing_calibrated);
-        gaugeTiltCalibrated = (GaugeRotation) findViewById(R.id.gauge_tilt_calibrated);
+        gaugeBearingCalibrated = findViewById(R.id.gauge_bearing_calibrated);
+        gaugeTiltCalibrated = findViewById(R.id.gauge_tilt_calibrated);
 
         initStartButton();
     }
 
-    /**
-     * Log output data to an external .csv file.
-     */
-    private void logData() {
-        if (logData && dataReady) {
-            if (generation == 0) {
-                logTime = System.currentTimeMillis();
-            }
-
-            log += generation++ + ",";
-
-            log += String.format("%.2f",
-                    (System.currentTimeMillis() - logTime) / 1000.0f) + ",";
-
-            log += vOrientation[0] + ",";
-            log += vOrientation[1] + ",";
-            log += vOrientation[2] + ",";
-
-            log += System.getProperty("line.separator");
-
-            dataReady = false;
-        }
-    }
-
     private void reset() {
-        isCalibrated = getPrefCalibratedGyroscopeEnabled();
 
-        orientation = new GyroscopeOrientation(this);
-
-        if (isCalibrated) {
-            tvStatus.setText("Sensor Calibrated");
-        } else {
-            tvStatus.setText("Sensor Uncalibrated");
-        }
-
-        if (imuOCfOrienationEnabled) {
-            orientation = new ImuOCfOrientation(this);
-            orientation.setFilterCoefficient(getPrefImuOCfOrienationCoeff());
-
-            if (isCalibrated) {
-                tvStatus.setText("ImuOCfOrientation Calibrated");
-            } else {
-                tvStatus.setText("ImuOCfOrientation Uncalibrated");
-            }
-
-        }
-        if (imuOCfRotationMatrixEnabled) {
-            orientation = new ImuOCfRotationMatrix(this);
-            orientation
-                    .setFilterCoefficient(getPrefImuOCfRotationMatrixCoeff());
-
-            if (isCalibrated) {
-                tvStatus.setText("ImuOCfRm Calibrated");
-            } else {
-                tvStatus.setText("ImuOCfRm Uncalibrated");
-            }
-        }
-        if (imuOCfQuaternionEnabled) {
-            orientation = new ImuOCfQuaternion(this);
-            orientation.setFilterCoefficient(getPrefImuOCfQuaternionCoeff());
-
-            if (isCalibrated) {
-                tvStatus.setText("ImuOCfQuaternion Calibrated");
-            } else {
-                tvStatus.setText("ImuOCfQuaternion Uncalibrated");
-            }
-        }
         if (imuOKfQuaternionEnabled) {
-            orientation = new ImuOKfQuaternion(this);
-
-            if (isCalibrated) {
-                tvStatus.setText("ImuOKfQuaternion Calibrated");
-            } else {
-                tvStatus.setText("ImuOKfQuaternion Uncalibrated");
-            }
-        }
-
-        if (gyroscopeAvailable) {
-            tvStatus.setTextColor(this.getResources().getColor(
-                    R.color.light_green));
+            orientationFusion = new OrientationKalmanFusion();
         } else {
-            tvStatus.setTextColor(this.getResources().getColor(
-                    R.color.light_red));
-
-            showGyroscopeNotAvailableAlert();
+            orientationFusion = new OrientationComplimentaryFusion();
+            orientationFusion.setTimeConstant(getPrefImuOCfQuaternionCoeff());
         }
 
         handler = new Handler();
@@ -393,11 +280,6 @@ public class GyroscopeActivity extends Activity implements Runnable {
             @Override
             public void run() {
                 handler.postDelayed(this, 100);
-
-                vOrientation = orientation.getOrientation();
-
-                dataReady = true;
-
                 updateText();
                 updateGauges();
             }
@@ -405,38 +287,8 @@ public class GyroscopeActivity extends Activity implements Runnable {
     }
 
     private void readPrefs() {
-        imuOCfOrienationEnabled = getPrefImuOCfOrientationEnabled();
-        imuOCfRotationMatrixEnabled = getPrefImuOCfRotationMatrixEnabled();
         imuOCfQuaternionEnabled = getPrefImuOCfQuaternionEnabled();
         imuOKfQuaternionEnabled = getPrefImuOKfQuaternionEnabled();
-    }
-
-    private void showGyroscopeNotAvailableAlert() {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-
-        // set title
-        alertDialogBuilder.setTitle("Gyroscope Not Available");
-
-        // set dialog message
-        alertDialogBuilder
-                .setMessage(
-                        "Your device is not equipped with a gyroscope or it is not responding. This is *NOT* a " +
-                                "problem with the app, it is problem with your device.")
-                .setCancelable(false)
-                .setNegativeButton("I'll look around...",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                // if this button is clicked, just close
-                                // the dialog box and do nothing
-                                dialog.cancel();
-                            }
-                        });
-
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-
-        // show it
-        alertDialog.show();
     }
 
     private void showHelpDialog() {
@@ -454,116 +306,31 @@ public class GyroscopeActivity extends Activity implements Runnable {
         helpDialog.show();
     }
 
-    /**
-     * Begin logging data to an external .csv file.
-     */
     private void startDataLog() {
-        if (logData == false) {
-            generation = 0;
-
-            CharSequence text = "Logging Data";
-            int duration = Toast.LENGTH_SHORT;
-
-            Toast toast = Toast.makeText(this, text, duration);
-            toast.show();
-
-            String headers = "Generation" + ",";
-
-            headers += "Timestamp" + ",";
-
-            headers += this.plotAccelXAxisTitle + ",";
-
-            headers += this.plotAccelYAxisTitle + ",";
-
-            headers += this.plotAccelZAxisTitle + ",";
-
-            log = headers;
-
-            log += System.getProperty("line.separator");
-
-            logData = true;
-        }
+        logData = true;
+        dataLogger.startDataLog();
     }
 
     private void stopDataLog() {
-        if (logData) {
-            writeLogToFile();
-        }
-
-        if (logData && thread != null) {
-            logData = false;
-
-            thread.interrupt();
-
-            thread = null;
-        }
+        logData = false;
+        String path = dataLogger.stopDataLog();
+        Toast.makeText(this, "File Written to: " + path, Toast.LENGTH_SHORT).show();
     }
 
     private void updateText() {
-        tvXAxis.setText(String.format("%.2f", Math.toDegrees(vOrientation[0])));
-        tvYAxis.setText(String.format("%.2f", Math.toDegrees(vOrientation[1])));
-        tvZAxis.setText(String.format("%.2f", Math.toDegrees(vOrientation[2])));
+        tvXAxis.setText(String.format("%.2f", Math.toDegrees(fusedOrientation[0])));
+        tvYAxis.setText(String.format("%.2f", Math.toDegrees(fusedOrientation[1])));
+        tvZAxis.setText(String.format("%.2f", Math.toDegrees(fusedOrientation[2])));
     }
 
     private void updateGauges() {
-        gaugeBearingCalibrated.updateBearing(vOrientation[0]);
-        gaugeTiltCalibrated.updateRotation(vOrientation);
+        gaugeBearingCalibrated.updateBearing(fusedOrientation[0]);
+        gaugeTiltCalibrated.updateRotation(fusedOrientation);
     }
 
-    /**
-     * Write the logged data out to a persisted file.
-     */
-    private void writeLogToFile() {
-        Calendar c = Calendar.getInstance();
-        String filename = "GyroscopeExplorer-" + c.get(Calendar.YEAR) + "-"
-                + (c.get(Calendar.MONTH) + 1) + "-"
-                + c.get(Calendar.DAY_OF_MONTH) + "-" + c.get(Calendar.HOUR)
-                + "-" + c.get(Calendar.MINUTE) + "-" + c.get(Calendar.SECOND)
-                + ".csv";
-
-        File dir = new File(Environment.getExternalStorageDirectory()
-                + File.separator + "GyroscopeExplorer" + File.separator
-                + "Logs");
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-
-        File file = new File(dir, filename);
-
-        FileOutputStream fos;
-        byte[] data = log.getBytes();
-        try {
-            fos = new FileOutputStream(file);
-            fos.write(data);
-            fos.flush();
-            fos.close();
-
-            CharSequence text = "Log Saved";
-            int duration = Toast.LENGTH_SHORT;
-
-            Toast toast = Toast.makeText(this, text, duration);
-            toast.show();
-        } catch (FileNotFoundException e) {
-            CharSequence text = e.toString();
-            int duration = Toast.LENGTH_SHORT;
-
-            Toast toast = Toast.makeText(this, text, duration);
-            toast.show();
-        } catch (IOException e) {
-            // handle exception
-        } finally {
-            // Update the MediaStore so we can view the file without rebooting.
-            // Note that it appears that the ACTION_MEDIA_MOUNTED approach is
-            // now blocked for non-system apps on Android 4.4.
-            MediaScannerConnection.scanFile(this, new String[]
-                            {file.getPath()}, null,
-                    new MediaScannerConnection.OnScanCompletedListener() {
-                        @Override
-                        public void onScanCompleted(final String path,
-                                                    final Uri uri) {
-
-                        }
-                    });
+    private void requestPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, WRITE_EXTERNAL_STORAGE_REQUEST);
         }
     }
 

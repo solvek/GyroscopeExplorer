@@ -3,7 +3,7 @@ GyroscopeExplorer
 
 <img src="http://kircherelectronics.com.23.38-89-161.groveurl.com/wp-content/uploads/2017/12/Screenshot_20171228-164911.png" width="270">
 
- <a href="https://play.google.com/store/apps/details?id=com.kircherelectronics.com.gyroscopeexplorer"><img src="http://www.kircherelectronics.com/resources/images/google-play-badge.png" width="270"></a>
+ <a href="https://play.google.com/store/apps/details?id=com.kircherelectronics.com.gyroscopeexplorer"><img src="http://kircherelectronics.com.23.38-89-161.groveurl.com/wp-content/uploads/2017/12/en_badge_web_generic.png" width="270"></a>
 
 # Introduction
 

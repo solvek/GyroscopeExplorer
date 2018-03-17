@@ -25,10 +25,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kircherelectronics.fsensor.filter.averaging.MeanFilter;
-import com.kircherelectronics.gyroscopeexplorer.R;
 import com.kircherelectronics.fsensor.filter.fusion.OrientationComplimentaryFusion;
 import com.kircherelectronics.fsensor.filter.fusion.OrientationFusion;
 import com.kircherelectronics.fsensor.filter.fusion.OrientationKalmanFusion;
+import com.kircherelectronics.gyroscopeexplorer.R;
+
 
 import com.kircherelectronics.gyroscopeexplorer.datalogger.DataLoggerManager;
 import  com.kircherelectronics.gyroscopeexplorer.gauge.*;

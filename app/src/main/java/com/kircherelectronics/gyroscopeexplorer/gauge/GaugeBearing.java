@@ -126,6 +126,7 @@ public final class GaugeBearing extends View
 	/**
 	 * Run the instance. This can be thought of as onDraw().
 	 */
+	@Override
 	protected void onDraw(Canvas canvas)
 	{
 		drawBackground(canvas);

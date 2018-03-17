@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion '26.0.0'
+    buildToolsVersion '26.0.2'
 
     defaultConfig {
         applicationId "com.kircherelectronics.com.gyroscopeexplorer"
@@ -21,8 +21,9 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:26.0.0'
-    compile 'com.android.support:appcompat-v7:26.0.0'
-    compile 'com.github.KalebKE:FSensor:v1.0'
-    compile 'org.apache.commons:commons-csv:1.4'
+
+    implementation 'com.android.support:support-v4:26.0.0'
+    implementation 'com.android.support:appcompat-v7:26.0.0'
+    implementation 'com.github.KalebKE:FSensor:v1.1.2'
+    implementation 'org.apache.commons:commons-csv:1.4'
 }

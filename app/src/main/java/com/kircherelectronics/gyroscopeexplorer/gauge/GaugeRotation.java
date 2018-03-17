@@ -5,21 +5,26 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
+import android.hardware.SensorManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
+import java.util.Arrays;
+
 /*
- * Copyright 2013-2017, Kaleb Kircher - Kircher Engineering, LLC
+ * AccelerationExplorer
+ * Copyright 2017 Kircher Electronics, LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,285 +36,282 @@ import android.view.View;
 /**
  * Draws an analog gauge for displaying rotation measurements in three-space
  * from device sensors.
- * 
+ *
  * @author Kaleb
  */
-public final class GaugeRotation extends View
-{
-	private static final String tag = GaugeRotation.class.getSimpleName();
+public final class GaugeRotation extends View {
 
-	// Keep track of the rotation of the device
-	private float[] rotation = new float[3];
+    private static final String TAG = GaugeRotation.class.getSimpleName();
 
-	// Keep static bitmaps of the gauge so we only have to redraw if we have to
-	// Static bitmap for the bezel of the gauge
-	private Bitmap bezelBitmap;
-	// Static bitmap for the face of the gauge
-	private Bitmap faceBitmap;
+    // drawing tools
+    private RectF rimOuterRect;
+    private Paint rimOuterPaint;
 
-	private Paint backgroundPaint;
-	private Paint rimOuterPaint;
-	private Paint rimPaint;
-	private Paint skyPaint;
+    // Keep static bitmaps of the gauge so we only have to redraw if we have to
+    // Static bitmap for the bezel of the gauge
+    private Bitmap bezelBitmap;
+    // Static bitmap for the face of the gauge
+    private Bitmap faceBitmap;
+    private Bitmap skyBitmap;
+    private Bitmap mutableBitmap;
 
-	private RectF rimRect;
-	private RectF rimOuterRect;
-	private RectF skyBackgroundRect;
+    // Keep track of the rotation of the device
+    private float[] rotation = new float[3];
 
-	/**
-	 * Create a new instance.
-	 * 
-	 * @param context
-	 */
-	public GaugeRotation(Context context)
-	{
-		super(context);
+    // Rectangle to draw the rim of the gauge
+    private RectF rimRect;
 
-		initDrawingTools();
-	}
+    // Rectangle to draw the sky section of the gauge face
+    private RectF faceBackgroundRect;
+    private RectF skyBackgroundRect;
 
-	/**
-	 * Create a new instance.
-	 * 
-	 * @param context
-	 * @param attrs
-	 */
-	public GaugeRotation(Context context, AttributeSet attrs)
-	{
-		super(context, attrs);
+    // Paint to draw the gauge bitmaps
+    private Paint backgroundPaint;
 
-		initDrawingTools();
-	}
+    // Paint to draw the rim of the bezel
+    private Paint rimPaint;
 
-	/**
-	 * Create a new instance.
-	 * 
-	 * @param context
-	 * @param attrs
-	 * @param defStyle
-	 */
-	public GaugeRotation(Context context, AttributeSet attrs, int defStyle)
-	{
-		super(context, attrs, defStyle);
+    // Paint to draw the sky portion of the gauge face
+    private Paint skyPaint;
 
-		initDrawingTools();
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param context
+     */
+    public GaugeRotation(Context context) {
+        super(context);
 
-	/**
-	 * Update the rotation of the device.
-	 * 
-	 * @param rotation
-	 */
-	public void updateRotation(float[] rotation)
-	{
-		System.arraycopy(rotation, 0, this.rotation, 0, rotation.length);
+        initDrawingTools();
+    }
 
-		this.invalidate();
-	}
+    /**
+     * Create a new instance.
+     *
+     * @param context
+     * @param attrs
+     */
+    public GaugeRotation(Context context, AttributeSet attrs) {
+        super(context, attrs);
 
-	private void initDrawingTools()
-	{
-		// Rectangle for the rim of the gauge bezel
-		rimRect = new RectF(0.12f, 0.12f, 0.88f, 0.88f);
+        initDrawingTools();
+    }
 
-		// Paint for the rim of the gauge bezel
-		rimPaint = new Paint();
-		rimPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-		// The linear gradient is a bit skewed for realism
-		rimPaint.setXfermode(new PorterDuffXfermode(Mode.CLEAR));
+    /**
+     * Create a new instance.
+     *
+     * @param context
+     * @param attrs
+     * @param defStyle
+     */
+    public GaugeRotation(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
 
-		float rimOuterSize = -0.04f;
-		rimOuterRect = new RectF();
-		rimOuterRect.set(rimRect.left + rimOuterSize, rimRect.top
-				+ rimOuterSize, rimRect.right - rimOuterSize, rimRect.bottom
-				- rimOuterSize);
+        initDrawingTools();
+    }
 
-		rimOuterPaint = new Paint();
-		rimOuterPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-		rimOuterPaint.setColor(Color.rgb(158,158,158));
+    /**
+     * Update the rotation of the device.
+     *
+     * @param rotation
+     */
+    public void updateRotation(float[] rotation) {
+        System.arraycopy(rotation, 0, this.rotation, 0, this.rotation.length);
 
-		float rimSize = 0.02f;
+        this.invalidate();
+    }
 
-		skyBackgroundRect = new RectF();
-		skyBackgroundRect.set(rimRect.left + rimSize, rimRect.top + rimSize,
-				rimRect.right - rimSize, rimRect.bottom - rimSize);
+    private void initDrawingTools() {
+        // Rectangle for the rim of the gauge bezel
+        rimRect = new RectF(0.12f, 0.12f, 0.88f, 0.88f);
 
-		skyPaint = new Paint();
-		skyPaint.setAntiAlias(true);
-		skyPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-		skyPaint.setColor(Color.rgb(158,158,158));
+        // Paint for the rim of the gauge bezel
+        rimPaint = new Paint();
+        rimPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+        // The linear gradient is a bit skewed for realism
+        rimPaint.setXfermode(new PorterDuffXfermode(Mode.CLEAR));
 
-		backgroundPaint = new Paint();
-		backgroundPaint.setFilterBitmap(true);
-	}
+        float rimOuterSize = -0.04f;
+        rimOuterRect = new RectF();
+        rimOuterRect.set(rimRect.left + rimOuterSize, rimRect.top
+                + rimOuterSize, rimRect.right - rimOuterSize, rimRect.bottom
+                - rimOuterSize);
 
-	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
-	{
-		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-		int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        rimOuterPaint = new Paint();
+        rimOuterPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+        rimOuterPaint.setColor(Color.GRAY);
 
-		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-		int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+        float rimSize = 0.02f;
 
-		int chosenWidth = chooseDimension(widthMode, widthSize);
-		int chosenHeight = chooseDimension(heightMode, heightSize);
+        faceBackgroundRect = new RectF();
+        faceBackgroundRect.set(rimRect.left + rimSize, rimRect.top + rimSize,
+                rimRect.right - rimSize, rimRect.bottom - rimSize);
 
-		int chosenDimension = Math.min(chosenWidth, chosenHeight);
+        skyBackgroundRect = new RectF();
+        skyBackgroundRect.set(rimRect.left + rimSize, rimRect.top + rimSize,
+                rimRect.right - rimSize, rimRect.bottom - rimSize);
 
-		setMeasuredDimension(chosenDimension, chosenDimension);
-	}
+        skyPaint = new Paint();
+        skyPaint.setAntiAlias(true);
+        skyPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+        skyPaint.setColor(Color.GRAY);
 
-	private int chooseDimension(int mode, int size)
-	{
-		if (mode == MeasureSpec.AT_MOST || mode == MeasureSpec.EXACTLY)
-		{
-			return size;
-		}
-		else
-		{ // (mode == MeasureSpec.UNSPECIFIED)
-			return getPreferredSize();
-		}
-	}
+        backgroundPaint = new Paint();
+        backgroundPaint.setFilterBitmap(true);
+    }
 
-	// in case there is no size specified
-	private int getPreferredSize()
-	{
-		return 300;
-	}
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
 
-	/**
-	 * Draw the gauge rim.
-	 * 
-	 * @param canvas
-	 */
-	private void drawRim(Canvas canvas)
-	{
-		// First draw the most back rim
-		canvas.drawOval(rimOuterRect, rimOuterPaint);
-		// Then draw the small black line
-		canvas.drawOval(rimRect, rimPaint);
-	}
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
-	/**
-	 * Draw the gauge face.
-	 * 
-	 * @param canvas
-	 */
-	private void drawFace(Canvas canvas)
-	{
-		// free the old bitmap
-		if (faceBitmap != null)
-		{
-			faceBitmap.recycle();
-		}
+        int chosenWidth = chooseDimension(widthMode, widthSize);
+        int chosenHeight = chooseDimension(heightMode, heightSize);
 
-		faceBitmap = Bitmap.createBitmap(getWidth(), getHeight(),
-				Bitmap.Config.ARGB_8888);
+        int chosenDimension = Math.min(chosenWidth, chosenHeight);
 
-		Canvas faceCanvas = new Canvas(faceBitmap);
-		float scale = (float) getWidth();
-		faceCanvas.scale(scale, scale);
+        setMeasuredDimension(chosenDimension, chosenDimension);
+    }
 
-		skyBackgroundRect.set(rimRect.left, rimRect.top, rimRect.right,
-				rimRect.bottom);
+    private int chooseDimension(int mode, int size) {
+        if (mode == MeasureSpec.AT_MOST || mode == MeasureSpec.EXACTLY) {
+            return size;
+        } else { // (mode == MeasureSpec.UNSPECIFIED)
+            return getPreferredSize();
+        }
+    }
 
-		faceCanvas.drawArc(skyBackgroundRect, 0, 360, true, skyPaint);
+    // in case there is no size specified
+    private int getPreferredSize() {
+        return 300;
+    }
 
-		int[] allpixels = new int[faceBitmap.getHeight()
-				* faceBitmap.getWidth()];
+    /**
+     * Draw the gauge rim.
+     *
+     * @param canvas
+     */
+    private void drawRim(Canvas canvas) {
+        // First draw the most back rim
+        canvas.drawOval(rimOuterRect, rimOuterPaint);
+        // Then draw the small black line
+        canvas.drawOval(rimRect, rimPaint);
+    }
 
-		faceBitmap.getPixels(allpixels, 0, faceBitmap.getWidth(), 0, 0,
-				faceBitmap.getWidth(), faceBitmap.getHeight());
+    /**
+     * Draw the gauge face.
+     *
+     * @param canvas
+     */
+    private void drawFace(Canvas canvas) {
+        // free the old bitmap
+        if (faceBitmap != null) {
+            faceBitmap.recycle();
+        }
 
-		for (int i = 0; i < faceBitmap.getHeight() * faceBitmap.getWidth(); i++)
-		{
-			allpixels[i] = Color.TRANSPARENT;
-		}
+        if(skyBitmap != null) {
+            skyBitmap.recycle();
+        }
 
-		int height = (int) ((faceBitmap.getHeight() / 2) - ((faceBitmap
-				.getHeight() / 2.5) * rotation[1]));
+        if(mutableBitmap != null) {
+            mutableBitmap.recycle();
+        }
 
-		if (height > faceBitmap.getHeight())
-		{
-			height = faceBitmap.getHeight();
-		}
-		
-		// Check for 0 case
-		if(height == 0)
-		{
-			height = 1;
-		}
+        skyPaint.setFilterBitmap(false);
 
-		faceBitmap.setPixels(allpixels, 0, faceBitmap.getWidth(), 0, 0,
-				faceBitmap.getWidth(), height);
+        faceBitmap = Bitmap.createBitmap(getWidth(), getHeight(),
+                Bitmap.Config.ARGB_8888);
+        skyBitmap = Bitmap.createBitmap(getWidth(), getHeight(),
+                Bitmap.Config.ARGB_8888);
+        mutableBitmap = Bitmap.createBitmap(getWidth(), getHeight(),
+                Bitmap.Config.ARGB_8888);
 
-		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.rotate((float) Math.toDegrees(rotation[2]), faceBitmap.getWidth() / 2f,
-				faceBitmap.getHeight() / 2f);
+        Canvas faceCanvas = new Canvas(faceBitmap);
+        Canvas skyCanvas = new Canvas(skyBitmap);
+        Canvas mutableCanvas = new Canvas(mutableBitmap);
+        float scale = (float) getWidth();
+        faceCanvas.scale(scale, scale);
+        skyCanvas.scale(scale, scale);
 
-		canvas.drawBitmap(faceBitmap, 0, 0, backgroundPaint);
-		canvas.restore();
-	}
+        faceBackgroundRect.set(rimRect.left, rimRect.top, rimRect.right,
+                rimRect.bottom);
 
-	/**
-	 * Draw the gauge bezel.
-	 * 
-	 * @param canvas
-	 */
-	private void drawBezel(Canvas canvas)
-	{
-		if (bezelBitmap == null)
-		{
-			Log.w(tag, "Bezel not created");
-		}
-		else
-		{
-			canvas.drawBitmap(bezelBitmap, 0, 0, backgroundPaint);
-		}
-	}
+        float halfHeight = ((rimRect.top - rimRect.bottom)/2);
 
-	@Override
-	protected void onSizeChanged(int w, int h, int oldw, int oldh)
-	{
-		Log.d(tag, "Size changed to " + w + "x" + h);
+        skyBackgroundRect.set(rimRect.left, rimRect.top - halfHeight + (rotation[1]*halfHeight) , rimRect.right,
+                rimRect.bottom);
 
-		regenerateBezel();
-	}
+        faceCanvas.drawArc(faceBackgroundRect, 0, 360, true, skyPaint);
+        skyCanvas.drawRect(skyBackgroundRect, skyPaint);
 
-	/**
-	 * Regenerate the background image. This should only be called when the size
-	 * of the screen has changed. The background will be cached and can be
-	 * reused without needing to redraw it.
-	 */
-	private void regenerateBezel()
-	{
-		// free the old bitmap
-		if (bezelBitmap != null)
-		{
-			bezelBitmap.recycle();
-		}
+        float angle = (float) Math.toDegrees(rotation[2]);
 
-		bezelBitmap = Bitmap.createBitmap(getWidth(), getHeight(),
-				Bitmap.Config.ARGB_8888);
-		Canvas bezelCanvas = new Canvas(bezelBitmap);
-		float scale = (float) getWidth();
-		bezelCanvas.scale(scale, scale);
+        canvas.save(Canvas.ALL_SAVE_FLAG);
+        canvas.rotate(angle, faceBitmap.getWidth() / 2f,
+                faceBitmap.getHeight() / 2f);
 
-		drawRim(bezelCanvas);
-	}
+        mutableCanvas.drawBitmap(faceBitmap, 0, 0, skyPaint);
+        skyPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+        mutableCanvas.drawBitmap(skyBitmap, 0, 0, skyPaint);
+        skyPaint.setXfermode(null);
 
-	@Override
-	protected void onDraw(Canvas canvas)
-	{
-		drawBezel(canvas);
-		drawFace(canvas);
+        canvas.drawBitmap(mutableBitmap, 0, 0, backgroundPaint);
+        canvas.restore();
+    }
 
-		float scale = (float) getWidth();
-		canvas.save(Canvas.MATRIX_SAVE_FLAG);
-		canvas.scale(scale, scale);
+    /**
+     * Draw the gauge bezel.
+     *
+     * @param canvas
+     */
+    private void drawBezel(Canvas canvas) {
+        if (bezelBitmap == null) {
+            Log.w(TAG, "Bezel not created");
+        } else {
+            canvas.drawBitmap(bezelBitmap, 0, 0, backgroundPaint);
+        }
+    }
 
-		canvas.restore();
-	}
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        Log.d(TAG, "Size changed to " + w + "x" + h);
+
+        regenerateBezel();
+    }
+
+    /**
+     * Regenerate the background image. This should only be called when the size
+     * of the screen has changed. The background will be cached and can be
+     * reused without needing to redraw it.
+     */
+    private void regenerateBezel() {
+        // free the old bitmap
+        if (bezelBitmap != null) {
+            bezelBitmap.recycle();
+        }
+
+        bezelBitmap = Bitmap.createBitmap(getWidth(), getHeight(),
+                Bitmap.Config.ARGB_8888);
+        Canvas bezelCanvas = new Canvas(bezelBitmap);
+        float scale = (float) getWidth();
+        bezelCanvas.scale(scale, scale);
+
+        drawRim(bezelCanvas);
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        drawBezel(canvas);
+        drawFace(canvas);
+
+        float scale = (float) getWidth();
+        canvas.save(Canvas.ALL_SAVE_FLAG);
+        canvas.scale(scale, scale);
+
+        canvas.restore();
+    }
 
 }

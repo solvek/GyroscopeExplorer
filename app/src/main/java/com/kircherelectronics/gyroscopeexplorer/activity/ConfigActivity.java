@@ -33,22 +33,16 @@ import com.kircherelectronics.gyroscopeexplorer.R;
 public class ConfigActivity extends PreferenceActivity implements
         OnSharedPreferenceChangeListener {
 
-    public static final String CALIBRATED_GYROSCOPE_ENABLED_KEY = "calibrated_gyroscope_preference";
-    public static final String IMUOCF_ORIENTATION_COEFF_KEY = "imuocf_orienation_coeff_preference";
-    public static final String IMUOCF_ORIENTATION_ENABLED_KEY = "imuocf_orienation_enabled_preference";
-    public static final String IMUOCF_QUATERNION_COEFF_KEY = "imuocf_quaternion_coeff_preference";
-    public static final String IMUOCF_QUATERNION_ENABLED_KEY = "imuocf_quaternion_enabled_preference";
-    public static final String IMUOCF_ROTATION_MATRIX_COEFF_KEY = "imuocf_rotation_matrix_coeff_preference";
-    public static final String IMUOCF_ROTATION_MATRIX_ENABLED_KEY = "imuocf_rotation_matrix_enabled_preference";
-    public static final String IMUOKF_QUATERNION_ENABLED_KEY = "imuokf_quaternion_enabled_preference";
-    // Preference keys for smoothing filters
+    public static final String COMPLIMENTARY_QUATERNION_ENABLED_KEY = "imuocf_quaternion_enabled_preference";
+    public static final String COMPLIMENTARY_QUATERNION_COEFF_KEY = "imuocf_quaternion_coeff_preference";
+
+    public static final String KALMAN_QUATERNION_ENABLED_KEY = "imuokf_quaternion_enabled_preference";
+
     public static final String MEAN_FILTER_SMOOTHING_ENABLED_KEY = "mean_filter_smoothing_enabled_preference";
-    public static final String MEAN_FILTER_SMOOTHING_TIME_CONSTANT_KEY =
-            "mean_filter_smoothing_time_constant_preference";
-    private SwitchPreference spImuOCfOrientation;
-    private SwitchPreference spImuOCfQuaternion;
-    private SwitchPreference spImuOCfRotationMatrix;
-    private SwitchPreference spImuOKfQuaternion;
+    public static final String MEAN_FILTER_SMOOTHING_TIME_CONSTANT_KEY = "mean_filter_smoothing_time_constant_preference";
+
+    private SwitchPreference spComplimentaryQuaternionEnabled;
+    private SwitchPreference spKalmanQuaternionEnabled;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,124 +52,38 @@ public class ConfigActivity extends PreferenceActivity implements
 		 */
         addPreferencesFromResource(R.xml.preferences);
 
-        spImuOCfOrientation = (SwitchPreference) findPreference(IMUOCF_ORIENTATION_ENABLED_KEY);
+        spComplimentaryQuaternionEnabled = (SwitchPreference) findPreference(COMPLIMENTARY_QUATERNION_ENABLED_KEY);
 
-        spImuOCfRotationMatrix = (SwitchPreference) findPreference(IMUOCF_ROTATION_MATRIX_ENABLED_KEY);
-
-        spImuOCfQuaternion = (SwitchPreference) findPreference(IMUOCF_QUATERNION_ENABLED_KEY);
-
-        spImuOKfQuaternion = (SwitchPreference) findPreference(IMUOKF_QUATERNION_ENABLED_KEY);
+        spKalmanQuaternionEnabled = (SwitchPreference) findPreference(KALMAN_QUATERNION_ENABLED_KEY);
 
     }
 
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-                                          String key) {
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 
-        if (key.equals(IMUOCF_ORIENTATION_ENABLED_KEY)) {
+        if (key.equals(COMPLIMENTARY_QUATERNION_ENABLED_KEY)) {
             if (sharedPreferences.getBoolean(key, false)) {
                 Editor edit = sharedPreferences.edit();
-
-                edit.putBoolean(IMUOCF_ROTATION_MATRIX_ENABLED_KEY, false);
-                edit.putBoolean(IMUOCF_QUATERNION_ENABLED_KEY, false);
-                edit.putBoolean(IMUOKF_QUATERNION_ENABLED_KEY, false);
-
+                edit.putBoolean(KALMAN_QUATERNION_ENABLED_KEY, false);
                 edit.apply();
-
-                spImuOCfRotationMatrix.setChecked(false);
-                spImuOCfQuaternion.setChecked(false);
-                spImuOKfQuaternion.setChecked(false);
+                spKalmanQuaternionEnabled.setChecked(false);
             }
         }
 
-        if (key.equals(IMUOCF_ROTATION_MATRIX_ENABLED_KEY)) {
+        if (key.equals(KALMAN_QUATERNION_ENABLED_KEY)) {
             if (sharedPreferences.getBoolean(key, false)) {
                 Editor edit = sharedPreferences.edit();
-
-                edit.putBoolean(IMUOCF_ORIENTATION_ENABLED_KEY, false);
-                edit.putBoolean(IMUOCF_QUATERNION_ENABLED_KEY, false);
-                edit.putBoolean(IMUOKF_QUATERNION_ENABLED_KEY, false);
-
+                edit.putBoolean(COMPLIMENTARY_QUATERNION_ENABLED_KEY, false);
                 edit.apply();
-
-                spImuOCfOrientation.setChecked(false);
-                spImuOCfQuaternion.setChecked(false);
-                spImuOKfQuaternion.setChecked(false);
-
+                spComplimentaryQuaternionEnabled.setChecked(false);
             }
         }
 
-        if (key.equals(IMUOKF_QUATERNION_ENABLED_KEY)) {
-            if (sharedPreferences.getBoolean(key, false)) {
-                Editor edit = sharedPreferences.edit();
-
-                edit.putBoolean(IMUOCF_ORIENTATION_ENABLED_KEY, false);
-                edit.putBoolean(IMUOCF_ROTATION_MATRIX_ENABLED_KEY, false);
-                edit.putBoolean(IMUOCF_QUATERNION_ENABLED_KEY, false);
-
-                edit.apply();
-
-                spImuOCfOrientation.setChecked(false);
-                spImuOCfRotationMatrix.setChecked(false);
-                spImuOCfQuaternion.setChecked(false);
-            }
-        }
-
-        if (key.equals(IMUOCF_QUATERNION_ENABLED_KEY)) {
-            if (sharedPreferences.getBoolean(key, false)) {
-                Editor edit = sharedPreferences.edit();
-
-                edit.putBoolean(IMUOCF_ORIENTATION_ENABLED_KEY, false);
-                edit.putBoolean(IMUOCF_ROTATION_MATRIX_ENABLED_KEY, false);
-                edit.putBoolean(IMUOKF_QUATERNION_ENABLED_KEY, false);
-
-                edit.apply();
-
-                spImuOCfOrientation.setChecked(false);
-                spImuOCfRotationMatrix.setChecked(false);
-                spImuOKfQuaternion.setChecked(false);
-            }
-        }
-
-        if (key.equals(IMUOCF_ORIENTATION_COEFF_KEY)) {
+        if (key.equals(COMPLIMENTARY_QUATERNION_COEFF_KEY)) {
             if (Double.valueOf(sharedPreferences.getString(key, "0.5")) > 1) {
                 sharedPreferences.edit().putString(key, "0.5").apply();
-
-                ((EditTextPreference) findPreference(IMUOCF_ORIENTATION_COEFF_KEY))
-                        .setText("0.5");
-
-                Toast.makeText(
-                        getApplicationContext(),
-                        "Whoa! The filter constant must be less than or equal to 1",
-                        Toast.LENGTH_LONG).show();
-            }
-        }
-
-        if (key.equals(IMUOCF_ROTATION_MATRIX_COEFF_KEY)) {
-            if (Double.valueOf(sharedPreferences.getString(key, "0.5")) > 1) {
-                sharedPreferences.edit().putString(key, "0.5").apply();
-
-                ((EditTextPreference) findPreference(IMUOCF_ROTATION_MATRIX_COEFF_KEY))
-                        .setText("0.5");
-
-                Toast.makeText(
-                        getApplicationContext(),
-                        "Whoa! The filter constant must be less than or equal to 1",
-                        Toast.LENGTH_LONG).show();
-            }
-        }
-
-        if (key.equals(IMUOCF_QUATERNION_COEFF_KEY)) {
-            if (Double.valueOf(sharedPreferences.getString(key, "0.5")) > 1) {
-                sharedPreferences.edit().putString(key, "0.5").apply();
-
-                ((EditTextPreference) findPreference(IMUOCF_QUATERNION_COEFF_KEY))
-                        .setText("0.5");
-
-                Toast.makeText(
-                        getApplicationContext(),
-                        "Whoa! The filter constant must be less than or equal to 1",
-                        Toast.LENGTH_LONG).show();
+                ((EditTextPreference) findPreference(COMPLIMENTARY_QUATERNION_COEFF_KEY)).setText("0.5");
+                Toast.makeText(getApplicationContext(), "The filter constant must be less than or equal to 1", Toast.LENGTH_LONG).show();
             }
         }
     }

@@ -17,6 +17,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -226,14 +227,14 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
 
-        return prefs.getFloat(ConfigActivity.MEAN_FILTER_SMOOTHING_TIME_CONSTANT_KEY, 0.5f);
+        return Float.valueOf(prefs.getString(ConfigActivity.MEAN_FILTER_SMOOTHING_TIME_CONSTANT_KEY, "0.5"));
     }
 
     private boolean getPrefImuOKfQuaternionEnabled() {
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
 
-        return prefs.getBoolean(ConfigActivity.IMUOKF_QUATERNION_ENABLED_KEY,
+        return prefs.getBoolean(ConfigActivity.KALMAN_QUATERNION_ENABLED_KEY,
                 false);
     }
 
@@ -242,7 +243,7 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
                 .getDefaultSharedPreferences(getApplicationContext());
 
         return Float.valueOf(prefs.getString(
-                ConfigActivity.IMUOCF_QUATERNION_COEFF_KEY, "0.5"));
+                ConfigActivity.COMPLIMENTARY_QUATERNION_COEFF_KEY, "0.5"));
     }
 
     private void initStartButton() {

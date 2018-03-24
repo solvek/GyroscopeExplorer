@@ -25,10 +25,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kircherelectronics.fsensor.filter.averaging.MeanFilter;
-import com.kircherelectronics.gyroscopeexplorer.R;
 import com.kircherelectronics.fsensor.filter.fusion.OrientationComplimentaryFusion;
 import com.kircherelectronics.fsensor.filter.fusion.OrientationFusion;
 import com.kircherelectronics.fsensor.filter.fusion.OrientationKalmanFusion;
+import com.kircherelectronics.gyroscopeexplorer.R;
+
 
 import com.kircherelectronics.gyroscopeexplorer.datalogger.DataLoggerManager;
 import  com.kircherelectronics.gyroscopeexplorer.gauge.*;
@@ -65,7 +66,7 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
     private boolean logData = false;
 
     private boolean meanFilterEnabled;
-    private boolean imuOKfQuaternionEnabled;
+    private boolean kalmanQuaternionEnabled;
 
     private float[] fusedOrientation = new float[3];
     private float[] acceleration = new float[4];
@@ -164,6 +165,10 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
                 SensorManager.SENSOR_DELAY_FASTEST);
 
         handler.post(runable);
+
+        if(kalmanQuaternionEnabled) {
+            orientationFusion.startFusion();
+        }
     }
 
     public void onPause() {
@@ -171,6 +176,10 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
 
         sensorManager.unregisterListener(this);
         handler.removeCallbacks(runable);
+
+        if(kalmanQuaternionEnabled) {
+            orientationFusion.stopFusion();
+        }
     }
 
     @Override
@@ -200,18 +209,6 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {}
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case WRITE_EXTERNAL_STORAGE_REQUEST: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                } else {
-                }
-                return;
-            }
-        }
-    }
 
     private boolean getPrefMeanFilterEnabled() {
         SharedPreferences prefs = PreferenceManager
@@ -225,14 +222,14 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
 
-        return prefs.getFloat(ConfigActivity.MEAN_FILTER_SMOOTHING_TIME_CONSTANT_KEY, 0.5f);
+        return Float.valueOf(prefs.getString(ConfigActivity.MEAN_FILTER_SMOOTHING_TIME_CONSTANT_KEY, "0.5"));
     }
 
-    private boolean getPrefImuOKfQuaternionEnabled() {
+    private boolean getPreKalmanQuaternionEnabled() {
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
 
-        return prefs.getBoolean(ConfigActivity.IMUOKF_QUATERNION_ENABLED_KEY,
+        return prefs.getBoolean(ConfigActivity.KALMAN_QUATERNION_ENABLED_KEY,
                 false);
     }
 
@@ -241,7 +238,7 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
                 .getDefaultSharedPreferences(getApplicationContext());
 
         return Float.valueOf(prefs.getString(
-                ConfigActivity.IMUOCF_QUATERNION_COEFF_KEY, "0.5"));
+                ConfigActivity.COMPLIMENTARY_QUATERNION_COEFF_KEY, "0.5"));
     }
 
     private void initStartButton() {
@@ -284,7 +281,7 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
 
     private void reset() {
 
-        if (imuOKfQuaternionEnabled) {
+        if (kalmanQuaternionEnabled) {
             orientationFusion = new OrientationKalmanFusion();
         } else {
             orientationFusion = new OrientationComplimentaryFusion();
@@ -305,7 +302,7 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
 
     private void readPrefs() {
         meanFilterEnabled = getPrefMeanFilterEnabled();
-        imuOKfQuaternionEnabled = getPrefImuOKfQuaternionEnabled();
+        kalmanQuaternionEnabled = getPreKalmanQuaternionEnabled();
 
         if(meanFilterEnabled) {
             meanFilter.setTimeConstant(getPrefMeanFilterTimeConstant());
@@ -339,9 +336,15 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
     }
 
     private void updateText() {
-        tvXAxis.setText(String.format("%.2f", Math.toDegrees(fusedOrientation[0])));
-        tvYAxis.setText(String.format("%.2f", Math.toDegrees(fusedOrientation[1])));
-        tvZAxis.setText(String.format("%.2f", Math.toDegrees(fusedOrientation[2])));
+        if(tvXAxis != null) {
+            tvXAxis.setText(String.format("%.2f", Math.toDegrees(fusedOrientation[0])));
+        }
+        if(tvYAxis != null) {
+            tvYAxis.setText(String.format("%.2f", Math.toDegrees(fusedOrientation[1])));
+        }
+        if(tvZAxis != null) {
+            tvZAxis.setText(String.format("%.2f", Math.toDegrees(fusedOrientation[2])));
+        }
     }
 
     private void updateGauges() {

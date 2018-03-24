@@ -1,18 +1,40 @@
 -- Merging decision tree log ---
 manifest
 ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:2:1-29:12
+INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:2:1-29:12
+INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:2:1-29:12
+INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:2:1-29:12
+MERGED from [com.android.support:support-v4:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-v4-27.1.0.aar/46341d1306d2a3a11c31190ccedf2286/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:appcompat-v7:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.1.0.aar/0f00165a01c69c0edb7a1b23db73ab62/AndroidManifest.xml:17:1-22:12
+MERGED from [com.github.KalebKE:FSensor:v1.1.4] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/FSensor-v1.1.4.aar/7cf7ba3ddff4b17117ab0f7849625bdd/AndroidManifest.xml:2:1-17:12
+MERGED from [com.android.support:support-media-compat:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-media-compat-27.1.0.aar/e9f19e7c4dff4cee8957aacf022078b6/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-fragment:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-fragment-27.1.0.aar/aeea1646b712585599fe624b5b030a1a/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:animated-vector-drawable:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/animated-vector-drawable-27.1.0.aar/dc75d17d7317670b423404a69c2eea69/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-core-ui:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-core-ui-27.1.0.aar/535a0b15808fe4749d8ccda8a772dd92/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-core-utils:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-core-utils-27.1.0.aar/221013f654084d22919dd4b1580c27e1/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-vector-drawable:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-vector-drawable-27.1.0.aar/9356192722909bae3bdfc197dcccd85f/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-compat:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.0.aar/613438f4f9e2c6f2297da6f6910a1399/AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.lifecycle:runtime:1.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/52def78f9772a877d5808009cae42442/AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.lifecycle:livedata-core:1.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/livedata-core-1.1.0.aar/b715fa34a1911a3fca95d0e1cf6e78b2/AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.lifecycle:viewmodel:1.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/viewmodel-1.1.0.aar/c68ddc0482fc1fd7b6d0328a244134d0/AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.core:runtime:1.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/5de80569c6db44e435813bc01ab6385d/AndroidManifest.xml:17:1-22:12
+INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:2:1-29:12
+INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:2:1-29:12
+INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:2:1-29:12
 	package
 		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:3:5-55
 		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
 		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
 	android:versionName
 		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:2:1-29:12
+		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
+	android:versionCode
+		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:2:1-29:12
 		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
 	xmlns:android
 		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:2:11-69
-	android:versionCode
-		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
-		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
 uses-feature#android.hardware.sensor.gyroscope
 ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:5:5-93
 	android:required
@@ -29,24 +51,16 @@ ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidMan
 		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:7:22-81
 application
 ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:9:5-27:19
-MERGED from [com.android.support:appcompat-v7:26.0.0] /Users/kaleb/.android/build-cache/32a7c33c08fe9c05c5a52f914006231dea1f18c9/output/AndroidManifest.xml:25:5-29:19
-MERGED from [com.android.support:support-v4:26.0.0] /Users/kaleb/.android/build-cache/bb0495933c755e5c25955e2db9bdac10a0e0bbfe/output/AndroidManifest.xml:25:5-29:19
-MERGED from [com.android.support:support-media-compat:26.0.0] /Users/kaleb/.android/build-cache/6bddc2d2e62896b94d4359b41d3c3602b4d11364/output/AndroidManifest.xml:25:5-29:19
-MERGED from [com.android.support:support-fragment:26.0.0] /Users/kaleb/.android/build-cache/9ab803690b9f72dfd891f82c0038a16a6df086a1/output/AndroidManifest.xml:25:5-29:19
-MERGED from [com.android.support:support-core-utils:26.0.0] /Users/kaleb/.android/build-cache/a4f9f8ef5380bad97db09dcce6c13979c8f41e52/output/AndroidManifest.xml:25:5-29:19
-MERGED from [com.android.support:animated-vector-drawable:26.0.0] /Users/kaleb/.android/build-cache/84a68b182e9cf219b55f2d5a5fae8a9589933d43/output/AndroidManifest.xml:22:5-26:19
-MERGED from [com.android.support:support-vector-drawable:26.0.0] /Users/kaleb/.android/build-cache/047ed3a8fd7d7566a976b4481a5b26c266b4e155/output/AndroidManifest.xml:22:5-26:19
-MERGED from [com.android.support:support-core-ui:26.0.0] /Users/kaleb/.android/build-cache/cb6cab8df45e14820af52f0d5763adf04f1ee074/output/AndroidManifest.xml:25:5-29:19
-MERGED from [com.android.support:support-compat:26.0.0] /Users/kaleb/.android/build-cache/1275e2eff198f5267c39636c10d9fbb2e38a6561/output/AndroidManifest.xml:25:5-29:19
-MERGED from [com.github.KalebKE:FSensor:v1.0] /Users/kaleb/.android/build-cache/c8a69c03260104e6050b53343a12bc41ef51337c/output/AndroidManifest.xml:11:5-15:19
+MERGED from [com.github.KalebKE:FSensor:v1.1.4] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/FSensor-v1.1.4.aar/7cf7ba3ddff4b17117ab0f7849625bdd/AndroidManifest.xml:11:5-15:19
+MERGED from [com.github.KalebKE:FSensor:v1.1.4] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/FSensor-v1.1.4.aar/7cf7ba3ddff4b17117ab0f7849625bdd/AndroidManifest.xml:11:5-15:19
+	android:supportsRtl
+		ADDED from [com.github.KalebKE:FSensor:v1.1.4] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/FSensor-v1.1.4.aar/7cf7ba3ddff4b17117ab0f7849625bdd/AndroidManifest.xml:14:9-35
 	android:label
 		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:12:9-41
-	android:supportsRtl
-		ADDED from [com.github.KalebKE:FSensor:v1.0] /Users/kaleb/.android/build-cache/c8a69c03260104e6050b53343a12bc41ef51337c/output/AndroidManifest.xml:14:9-35
-	android:allowBackup
-		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:10:9-35
 	android:icon
 		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:11:9-52
+	android:allowBackup
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:10:9-35
 	android:theme
 		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:13:9-40
 activity#com.kircherelectronics.gyroscopeexplorer.activity.GyroscopeActivity
@@ -75,35 +89,43 @@ ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidMan
 		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:25:13-92
 uses-sdk
 INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
-MERGED from [com.android.support:appcompat-v7:26.0.0] /Users/kaleb/.android/build-cache/32a7c33c08fe9c05c5a52f914006231dea1f18c9/output/AndroidManifest.xml:21:5-23:78
-MERGED from [com.android.support:support-v4:26.0.0] /Users/kaleb/.android/build-cache/bb0495933c755e5c25955e2db9bdac10a0e0bbfe/output/AndroidManifest.xml:21:5-23:54
-MERGED from [com.android.support:support-media-compat:26.0.0] /Users/kaleb/.android/build-cache/6bddc2d2e62896b94d4359b41d3c3602b4d11364/output/AndroidManifest.xml:21:5-23:63
-MERGED from [com.android.support:support-fragment:26.0.0] /Users/kaleb/.android/build-cache/9ab803690b9f72dfd891f82c0038a16a6df086a1/output/AndroidManifest.xml:21:5-23:60
-MERGED from [com.android.support:support-core-utils:26.0.0] /Users/kaleb/.android/build-cache/a4f9f8ef5380bad97db09dcce6c13979c8f41e52/output/AndroidManifest.xml:21:5-23:61
-MERGED from [com.android.support:animated-vector-drawable:26.0.0] /Users/kaleb/.android/build-cache/84a68b182e9cf219b55f2d5a5fae8a9589933d43/output/AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:support-vector-drawable:26.0.0] /Users/kaleb/.android/build-cache/047ed3a8fd7d7566a976b4481a5b26c266b4e155/output/AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:support-core-ui:26.0.0] /Users/kaleb/.android/build-cache/cb6cab8df45e14820af52f0d5763adf04f1ee074/output/AndroidManifest.xml:21:5-23:58
-MERGED from [com.android.support:support-compat:26.0.0] /Users/kaleb/.android/build-cache/1275e2eff198f5267c39636c10d9fbb2e38a6561/output/AndroidManifest.xml:21:5-23:58
-MERGED from [com.github.KalebKE:FSensor:v1.0] /Users/kaleb/.android/build-cache/c8a69c03260104e6050b53343a12bc41ef51337c/output/AndroidManifest.xml:7:5-9:41
-	tools:overrideLibrary
-		ADDED from [com.android.support:appcompat-v7:26.0.0] /Users/kaleb/.android/build-cache/32a7c33c08fe9c05c5a52f914006231dea1f18c9/output/AndroidManifest.xml:23:9-75
+INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
+INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
+MERGED from [com.android.support:support-v4:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-v4-27.1.0.aar/46341d1306d2a3a11c31190ccedf2286/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-v4:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-v4-27.1.0.aar/46341d1306d2a3a11c31190ccedf2286/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:appcompat-v7:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.1.0.aar/0f00165a01c69c0edb7a1b23db73ab62/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:appcompat-v7:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.1.0.aar/0f00165a01c69c0edb7a1b23db73ab62/AndroidManifest.xml:20:5-44
+MERGED from [com.github.KalebKE:FSensor:v1.1.4] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/FSensor-v1.1.4.aar/7cf7ba3ddff4b17117ab0f7849625bdd/AndroidManifest.xml:7:5-9:41
+MERGED from [com.github.KalebKE:FSensor:v1.1.4] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/FSensor-v1.1.4.aar/7cf7ba3ddff4b17117ab0f7849625bdd/AndroidManifest.xml:7:5-9:41
+MERGED from [com.android.support:support-media-compat:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-media-compat-27.1.0.aar/e9f19e7c4dff4cee8957aacf022078b6/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-media-compat:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-media-compat-27.1.0.aar/e9f19e7c4dff4cee8957aacf022078b6/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-fragment:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-fragment-27.1.0.aar/aeea1646b712585599fe624b5b030a1a/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-fragment:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-fragment-27.1.0.aar/aeea1646b712585599fe624b5b030a1a/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:animated-vector-drawable:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/animated-vector-drawable-27.1.0.aar/dc75d17d7317670b423404a69c2eea69/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:animated-vector-drawable:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/animated-vector-drawable-27.1.0.aar/dc75d17d7317670b423404a69c2eea69/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-ui:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-core-ui-27.1.0.aar/535a0b15808fe4749d8ccda8a772dd92/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-ui:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-core-ui-27.1.0.aar/535a0b15808fe4749d8ccda8a772dd92/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-utils:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-core-utils-27.1.0.aar/221013f654084d22919dd4b1580c27e1/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-utils:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-core-utils-27.1.0.aar/221013f654084d22919dd4b1580c27e1/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-vector-drawable:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-vector-drawable-27.1.0.aar/9356192722909bae3bdfc197dcccd85f/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-vector-drawable:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-vector-drawable-27.1.0.aar/9356192722909bae3bdfc197dcccd85f/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-compat:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.0.aar/613438f4f9e2c6f2297da6f6910a1399/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-compat:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.0.aar/613438f4f9e2c6f2297da6f6910a1399/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:runtime:1.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/52def78f9772a877d5808009cae42442/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:runtime:1.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/52def78f9772a877d5808009cae42442/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:livedata-core:1.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/livedata-core-1.1.0.aar/b715fa34a1911a3fca95d0e1cf6e78b2/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:livedata-core:1.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/livedata-core-1.1.0.aar/b715fa34a1911a3fca95d0e1cf6e78b2/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:viewmodel:1.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/viewmodel-1.1.0.aar/c68ddc0482fc1fd7b6d0328a244134d0/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:viewmodel:1.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/viewmodel-1.1.0.aar/c68ddc0482fc1fd7b6d0328a244134d0/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.core:runtime:1.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/5de80569c6db44e435813bc01ab6385d/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.core:runtime:1.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/5de80569c6db44e435813bc01ab6385d/AndroidManifest.xml:20:5-44
+INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
+INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
 	android:targetSdkVersion
 		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
 		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
 	android:minSdkVersion
 		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
+		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
 		INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml
-meta-data#android.support.VERSION
-ADDED from [com.android.support:appcompat-v7:26.0.0] /Users/kaleb/.android/build-cache/32a7c33c08fe9c05c5a52f914006231dea1f18c9/output/AndroidManifest.xml:26:9-28:38
-MERGED from [com.android.support:support-v4:26.0.0] /Users/kaleb/.android/build-cache/bb0495933c755e5c25955e2db9bdac10a0e0bbfe/output/AndroidManifest.xml:26:9-28:38
-MERGED from [com.android.support:support-media-compat:26.0.0] /Users/kaleb/.android/build-cache/6bddc2d2e62896b94d4359b41d3c3602b4d11364/output/AndroidManifest.xml:26:9-28:38
-MERGED from [com.android.support:support-fragment:26.0.0] /Users/kaleb/.android/build-cache/9ab803690b9f72dfd891f82c0038a16a6df086a1/output/AndroidManifest.xml:26:9-28:38
-MERGED from [com.android.support:support-core-utils:26.0.0] /Users/kaleb/.android/build-cache/a4f9f8ef5380bad97db09dcce6c13979c8f41e52/output/AndroidManifest.xml:26:9-28:38
-MERGED from [com.android.support:animated-vector-drawable:26.0.0] /Users/kaleb/.android/build-cache/84a68b182e9cf219b55f2d5a5fae8a9589933d43/output/AndroidManifest.xml:23:9-25:38
-MERGED from [com.android.support:support-vector-drawable:26.0.0] /Users/kaleb/.android/build-cache/047ed3a8fd7d7566a976b4481a5b26c266b4e155/output/AndroidManifest.xml:23:9-25:38
-MERGED from [com.android.support:support-core-ui:26.0.0] /Users/kaleb/.android/build-cache/cb6cab8df45e14820af52f0d5763adf04f1ee074/output/AndroidManifest.xml:26:9-28:38
-MERGED from [com.android.support:support-compat:26.0.0] /Users/kaleb/.android/build-cache/1275e2eff198f5267c39636c10d9fbb2e38a6561/output/AndroidManifest.xml:26:9-28:38
-	android:value
-		ADDED from [com.android.support:appcompat-v7:26.0.0] /Users/kaleb/.android/build-cache/32a7c33c08fe9c05c5a52f914006231dea1f18c9/output/AndroidManifest.xml:28:13-35
-	android:name
-		ADDED from [com.android.support:appcompat-v7:26.0.0] /Users/kaleb/.android/build-cache/32a7c33c08fe9c05c5a52f914006231dea1f18c9/output/AndroidManifest.xml:27:13-51

@@ -60,7 +60,7 @@ public class CsvDataLogger implements DataLoggerInterface
 
     public void setHeaders(Iterable<String> headers) throws IllegalStateException
     {
-        if(!headersSet)
+        if(!headersSet && csv != null)
         {
             try
             {

@@ -17,7 +17,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -67,7 +66,7 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
     private boolean logData = false;
 
     private boolean meanFilterEnabled;
-    private boolean imuOKfQuaternionEnabled;
+    private boolean kalmanQuaternionEnabled;
 
     private float[] fusedOrientation = new float[3];
     private float[] acceleration = new float[4];
@@ -166,6 +165,10 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
                 SensorManager.SENSOR_DELAY_FASTEST);
 
         handler.post(runable);
+
+        if(kalmanQuaternionEnabled) {
+            orientationFusion.startFusion();
+        }
     }
 
     public void onPause() {
@@ -173,6 +176,10 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
 
         sensorManager.unregisterListener(this);
         handler.removeCallbacks(runable);
+
+        if(kalmanQuaternionEnabled) {
+            orientationFusion.stopFusion();
+        }
     }
 
     @Override
@@ -202,18 +209,6 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {}
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case WRITE_EXTERNAL_STORAGE_REQUEST: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                } else {
-                }
-                return;
-            }
-        }
-    }
 
     private boolean getPrefMeanFilterEnabled() {
         SharedPreferences prefs = PreferenceManager
@@ -230,7 +225,7 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
         return Float.valueOf(prefs.getString(ConfigActivity.MEAN_FILTER_SMOOTHING_TIME_CONSTANT_KEY, "0.5"));
     }
 
-    private boolean getPrefImuOKfQuaternionEnabled() {
+    private boolean getPreKalmanQuaternionEnabled() {
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
 
@@ -286,7 +281,7 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
 
     private void reset() {
 
-        if (imuOKfQuaternionEnabled) {
+        if (kalmanQuaternionEnabled) {
             orientationFusion = new OrientationKalmanFusion();
         } else {
             orientationFusion = new OrientationComplimentaryFusion();
@@ -307,7 +302,7 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
 
     private void readPrefs() {
         meanFilterEnabled = getPrefMeanFilterEnabled();
-        imuOKfQuaternionEnabled = getPrefImuOKfQuaternionEnabled();
+        kalmanQuaternionEnabled = getPreKalmanQuaternionEnabled();
 
         if(meanFilterEnabled) {
             meanFilter.setTimeConstant(getPrefMeanFilterTimeConstant());

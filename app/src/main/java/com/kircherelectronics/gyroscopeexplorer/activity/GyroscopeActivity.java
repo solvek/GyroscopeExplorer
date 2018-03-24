@@ -336,9 +336,15 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
     }
 
     private void updateText() {
-        tvXAxis.setText(String.format("%.2f", Math.toDegrees(fusedOrientation[0])));
-        tvYAxis.setText(String.format("%.2f", Math.toDegrees(fusedOrientation[1])));
-        tvZAxis.setText(String.format("%.2f", Math.toDegrees(fusedOrientation[2])));
+        if(tvXAxis != null) {
+            tvXAxis.setText(String.format("%.2f", Math.toDegrees(fusedOrientation[0])));
+        }
+        if(tvYAxis != null) {
+            tvYAxis.setText(String.format("%.2f", Math.toDegrees(fusedOrientation[1])));
+        }
+        if(tvZAxis != null) {
+            tvZAxis.setText(String.format("%.2f", Math.toDegrees(fusedOrientation[2])));
+        }
     }
 
     private void updateGauges() {

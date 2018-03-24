@@ -6,7 +6,7 @@
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="26" />
+        android:targetSdkVersion="27" />
 
     <uses-feature
         android:name="android.hardware.sensor.gyroscope"
@@ -17,6 +17,7 @@
 
     <application
         android:allowBackup="true"
+        android:debuggable="true"
         android:icon="@drawable/gyroscope_explorer"
         android:label="@string/app_name"
         android:supportsRtl="true"
@@ -34,10 +35,6 @@
         <activity
             android:name="com.kircherelectronics.gyroscopeexplorer.activity.ConfigActivity"
             android:screenOrientation="portrait" />
-
-        <meta-data
-            android:name="android.support.VERSION"
-            android:value="26.0.0" />
     </application>
 
 </manifest>

@@ -8,8 +8,8 @@ android {
         applicationId "com.kircherelectronics.com.gyroscopeexplorer"
         minSdkVersion 14
         targetSdkVersion 27
-        versionCode = 9
-        versionName = "1.5.2"
+        versionCode = 10
+        versionName = "1.5.3"
     }
 
     buildTypes {

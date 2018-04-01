@@ -341,14 +341,14 @@ public final class GaugeBearing extends View
 		if (handInitialized)
 		{
 			float handAngle = degreeToAngle(handPosition);
-			handCanvas.save(Canvas.MATRIX_SAVE_FLAG);
+			handCanvas.save(Canvas.ALL_SAVE_FLAG);
 			handCanvas.rotate(handAngle, 0.5f, 0.5f);
 			handCanvas.drawPath(handPath, handPaint);
 		}
 		else
 		{
 			float handAngle = degreeToAngle(0);
-			handCanvas.save(Canvas.MATRIX_SAVE_FLAG);
+			handCanvas.save(Canvas.ALL_SAVE_FLAG);
 			handCanvas.rotate(handAngle, 0.5f, 0.5f);
 			handCanvas.drawPath(handPath, handPaint);
 		}

@@ -210,7 +210,7 @@ public final class GaugeRotation extends View {
 
         float halfHeight = ((rimRect.top - rimRect.bottom)/2);
 
-        float top = rimRect.top - halfHeight + (rotation[1]*halfHeight);
+        float top = rimRect.top - halfHeight + (-rotation[1]*halfHeight);
         
         if(rimRect.left <= rimRect.right && top <= rimRect.bottom) {
             // free the old bitmap

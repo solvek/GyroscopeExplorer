@@ -25,15 +25,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kircherelectronics.fsensor.filter.averaging.MeanFilter;
-import com.kircherelectronics.fsensor.filter.fusion.OrientationComplimentaryFusion;
-import com.kircherelectronics.fsensor.filter.fusion.OrientationFusion;
-import com.kircherelectronics.fsensor.filter.fusion.OrientationKalmanFusion;
+import com.kircherelectronics.fsensor.filter.gyroscope.OrientationGyroscope;
+import com.kircherelectronics.fsensor.filter.gyroscope.fusion.complimentary.OrientationFusedComplimentary;
+import com.kircherelectronics.fsensor.filter.gyroscope.fusion.kalman.OrientationFusedKalman;
+import com.kircherelectronics.fsensor.util.rotation.RotationUtil;
 import com.kircherelectronics.gyroscopeexplorer.R;
-
-
 import com.kircherelectronics.gyroscopeexplorer.datalogger.DataLoggerManager;
-import  com.kircherelectronics.gyroscopeexplorer.gauge.*;
+import com.kircherelectronics.gyroscopeexplorer.gauge.GaugeBearing;
+import com.kircherelectronics.gyroscopeexplorer.gauge.GaugeRotation;
 import com.kircherelectronics.gyroscopeexplorer.view.VectorDrawableButton;
+
+import org.apache.commons.math3.complex.Quaternion;
 
 /*
  * Copyright 2013-2017, Kaleb Kircher - Kircher Engineering, LLC
@@ -65,14 +67,19 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
     // Indicate if the output should be logged to a .csv file
     private boolean logData = false;
 
+    private boolean hasAcceleration = false;
+    private boolean hasMagnetic = false;
+
     private boolean meanFilterEnabled;
-    private boolean kalmanQuaternionEnabled;
+    private boolean kalmanFilterEnabled;
+    private boolean complimentaryFilterEnabled;
 
     private float[] fusedOrientation = new float[3];
     private float[] acceleration = new float[4];
     private float[] magnetic = new float[3];
     private float[] rotation = new float[3];
 
+    private Mode mode = Mode.GYROSCOPE_ONLY;
 
     // The gauge views. Note that these are views and UI hogs since they run in
     // the UI thread, not ideal, but easy to use.
@@ -88,7 +95,10 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
     private TextView tvYAxis;
     private TextView tvZAxis;
 
-    private OrientationFusion orientationFusion;
+    private OrientationGyroscope orientationGyroscope;
+    private OrientationFusedComplimentary orientationComplimentaryFusion;
+    private OrientationFusedKalman orientationKalmanFusion;
+
     private MeanFilter meanFilter;
 
     private SensorManager sensorManager;
@@ -103,6 +113,7 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
         dataLogger = new DataLoggerManager(this);
         meanFilter = new MeanFilter();
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+
         initUI();
     }
 
@@ -123,7 +134,9 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
 
             // Reset everything
             case R.id.action_reset:
-                orientationFusion.reset();
+                if(orientationGyroscope != null) {
+                    orientationGyroscope.reset();
+                }
                 return true;
 
             // Reset everything
@@ -143,12 +156,30 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
         }
     }
 
+    @Override
     public void onResume() {
         super.onResume();
 
         requestPermissions();
         readPrefs();
+
+        switch (mode) {
+            case GYROSCOPE_ONLY:
+                orientationGyroscope = new OrientationGyroscope();
+                break;
+            case COMPLIMENTARY_FILTER:
+                orientationComplimentaryFusion = new OrientationFusedComplimentary();
+                break;
+            case KALMAN_FILTER:
+                orientationKalmanFusion = new OrientationFusedKalman();
+                break;
+        }
+
         reset();
+
+        if(orientationKalmanFusion != null) {
+            orientationKalmanFusion.startFusion();
+        }
 
         sensorManager.registerListener(this, sensorManager
                         .getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
@@ -165,21 +196,18 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
                 SensorManager.SENSOR_DELAY_FASTEST);
 
         handler.post(runable);
-
-        if(kalmanQuaternionEnabled) {
-            orientationFusion.startFusion();
-        }
     }
 
+    @Override
     public void onPause() {
         super.onPause();
 
+        if(orientationKalmanFusion != null) {
+            orientationKalmanFusion.stopFusion();
+        }
+
         sensorManager.unregisterListener(this);
         handler.removeCallbacks(runable);
-
-        if(kalmanQuaternionEnabled) {
-            orientationFusion.stopFusion();
-        }
     }
 
     @Override
@@ -187,16 +215,45 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             // Android reuses events, so you probably want a copy
             System.arraycopy(event.values, 0, acceleration, 0, event.values.length);
-            orientationFusion.setAcceleration(acceleration);
+            hasAcceleration = true;
         } else  if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
             // Android reuses events, so you probably want a copy
             System.arraycopy(event.values, 0, magnetic, 0, event.values.length);
-            orientationFusion.setMagneticField(this.magnetic);
+            hasMagnetic = true;
         } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
             // Android reuses events, so you probably want a copy
             System.arraycopy(event.values, 0, rotation, 0, event.values.length);
-            // Filter the rotation
-            fusedOrientation = orientationFusion.filter(this.rotation);
+
+            switch (mode) {
+                case GYROSCOPE_ONLY:
+                    if(!orientationGyroscope.isBaseOrientationSet()) {
+                        orientationGyroscope.setBaseOrientation(Quaternion.IDENTITY);
+                    } else {
+                        fusedOrientation = orientationGyroscope.calculateOrientation(rotation, event.timestamp);
+                    }
+
+                    break;
+                case COMPLIMENTARY_FILTER:
+                    if(!orientationComplimentaryFusion.isBaseOrientationSet()) {
+                        if(hasAcceleration && hasMagnetic) {
+                            orientationComplimentaryFusion.setBaseOrientation(RotationUtil.getOrientationQuaternionFromAccelerationMagnetic(acceleration, magnetic));
+                        }
+                    } else {
+                        fusedOrientation = orientationComplimentaryFusion.calculateFusedOrientation(rotation, event.timestamp, acceleration, magnetic);
+                    }
+
+                    break;
+                case KALMAN_FILTER:
+
+                    if(!orientationKalmanFusion.isBaseOrientationSet()) {
+                        if(hasAcceleration && hasMagnetic) {
+                            orientationKalmanFusion.setBaseOrientation(RotationUtil.getOrientationQuaternionFromAccelerationMagnetic(acceleration, magnetic));
+                        }
+                    } else {
+                        fusedOrientation = orientationKalmanFusion.calculateFusedOrientation(rotation, event.timestamp, acceleration, magnetic);
+                    }
+                    break;
+            }
 
             if(meanFilterEnabled) {
                 fusedOrientation = meanFilter.filter(fusedOrientation);
@@ -225,11 +282,19 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
         return Float.valueOf(prefs.getString(ConfigActivity.MEAN_FILTER_SMOOTHING_TIME_CONSTANT_KEY, "0.5"));
     }
 
-    private boolean getPreKalmanQuaternionEnabled() {
+    private boolean getPrefKalmanEnabled() {
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
 
         return prefs.getBoolean(ConfigActivity.KALMAN_QUATERNION_ENABLED_KEY,
+                false);
+    }
+
+    private boolean getPrefComplimentaryEnabled() {
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext());
+
+        return prefs.getBoolean(ConfigActivity.COMPLIMENTARY_QUATERNION_ENABLED_KEY,
                 false);
     }
 
@@ -281,12 +346,23 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
 
     private void reset() {
 
-        if (kalmanQuaternionEnabled) {
-            orientationFusion = new OrientationKalmanFusion();
-        } else {
-            orientationFusion = new OrientationComplimentaryFusion();
-            orientationFusion.setTimeConstant(getPrefImuOCfQuaternionCoeff());
+        switch (mode) {
+            case GYROSCOPE_ONLY:
+                orientationGyroscope.reset();
+                break;
+            case COMPLIMENTARY_FILTER:
+                orientationComplimentaryFusion.reset();
+                break;
+            case KALMAN_FILTER:
+                orientationKalmanFusion.reset();
+                break;
         }
+
+        acceleration = new float[4];
+        magnetic = new float[3];
+
+        hasAcceleration = false;
+        hasMagnetic = false;
 
         handler = new Handler();
 
@@ -302,10 +378,19 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
 
     private void readPrefs() {
         meanFilterEnabled = getPrefMeanFilterEnabled();
-        kalmanQuaternionEnabled = getPreKalmanQuaternionEnabled();
+        complimentaryFilterEnabled = getPrefComplimentaryEnabled();
+        kalmanFilterEnabled = getPrefKalmanEnabled();
 
         if(meanFilterEnabled) {
             meanFilter.setTimeConstant(getPrefMeanFilterTimeConstant());
+        }
+
+        if(!complimentaryFilterEnabled && !kalmanFilterEnabled) {
+            mode = Mode.GYROSCOPE_ONLY;
+        } else if(complimentaryFilterEnabled) {
+            mode = Mode.COMPLIMENTARY_FILTER;
+        } else if(kalmanFilterEnabled) {
+            mode = Mode.KALMAN_FILTER;
         }
     }
 
@@ -336,15 +421,9 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
     }
 
     private void updateText() {
-        if(tvXAxis != null) {
-            tvXAxis.setText(String.format("%.2f", Math.toDegrees(fusedOrientation[0])));
-        }
-        if(tvYAxis != null) {
-            tvYAxis.setText(String.format("%.2f", Math.toDegrees(fusedOrientation[1])));
-        }
-        if(tvZAxis != null) {
-            tvZAxis.setText(String.format("%.2f", Math.toDegrees(fusedOrientation[2])));
-        }
+        tvXAxis.setText(String.format("%.2f", (Math.toDegrees(fusedOrientation[0]) + 360) % 360));
+        tvYAxis.setText(String.format("%.2f", (Math.toDegrees(fusedOrientation[1]) + 360) % 360));
+        tvZAxis.setText(String.format("%.2f", (Math.toDegrees(fusedOrientation[2]) + 360) % 360));
     }
 
     private void updateGauges() {
@@ -356,6 +435,12 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, WRITE_EXTERNAL_STORAGE_REQUEST);
         }
+    }
+
+    private enum Mode {
+        GYROSCOPE_ONLY,
+        COMPLIMENTARY_FILTER,
+        KALMAN_FILTER;
     }
 
 }

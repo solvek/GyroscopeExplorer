@@ -6,7 +6,7 @@ INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/Android
 INJECTED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:2:1-29:12
 MERGED from [com.android.support:support-v4:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-v4-27.1.0.aar/46341d1306d2a3a11c31190ccedf2286/AndroidManifest.xml:17:1-22:12
 MERGED from [com.android.support:appcompat-v7:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.1.0.aar/0f00165a01c69c0edb7a1b23db73ab62/AndroidManifest.xml:17:1-22:12
-MERGED from [com.github.KalebKE:FSensor:v1.1.4] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/FSensor-v1.1.4.aar/7cf7ba3ddff4b17117ab0f7849625bdd/AndroidManifest.xml:2:1-17:12
+MERGED from [com.github.KalebKE:FSensor:v1.2] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/FSensor-v1.2.aar/6cd9205e80491ca8620157bb0d0f4102/AndroidManifest.xml:2:1-17:12
 MERGED from [com.android.support:support-media-compat:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-media-compat-27.1.0.aar/e9f19e7c4dff4cee8957aacf022078b6/AndroidManifest.xml:17:1-22:12
 MERGED from [com.android.support:support-fragment:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-fragment-27.1.0.aar/aeea1646b712585599fe624b5b030a1a/AndroidManifest.xml:17:1-22:12
 MERGED from [com.android.support:animated-vector-drawable:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/animated-vector-drawable-27.1.0.aar/dc75d17d7317670b423404a69c2eea69/AndroidManifest.xml:17:1-22:12
@@ -51,10 +51,10 @@ ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidMan
 		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:7:22-81
 application
 ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:9:5-27:19
-MERGED from [com.github.KalebKE:FSensor:v1.1.4] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/FSensor-v1.1.4.aar/7cf7ba3ddff4b17117ab0f7849625bdd/AndroidManifest.xml:11:5-15:19
-MERGED from [com.github.KalebKE:FSensor:v1.1.4] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/FSensor-v1.1.4.aar/7cf7ba3ddff4b17117ab0f7849625bdd/AndroidManifest.xml:11:5-15:19
+MERGED from [com.github.KalebKE:FSensor:v1.2] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/FSensor-v1.2.aar/6cd9205e80491ca8620157bb0d0f4102/AndroidManifest.xml:11:5-15:19
+MERGED from [com.github.KalebKE:FSensor:v1.2] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/FSensor-v1.2.aar/6cd9205e80491ca8620157bb0d0f4102/AndroidManifest.xml:11:5-15:19
 	android:supportsRtl
-		ADDED from [com.github.KalebKE:FSensor:v1.1.4] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/FSensor-v1.1.4.aar/7cf7ba3ddff4b17117ab0f7849625bdd/AndroidManifest.xml:14:9-35
+		ADDED from [com.github.KalebKE:FSensor:v1.2] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/FSensor-v1.2.aar/6cd9205e80491ca8620157bb0d0f4102/AndroidManifest.xml:14:9-35
 	android:label
 		ADDED from /Users/kaleb/StudioProjects/GyroscopeExplorer/app/src/main/AndroidManifest.xml:12:9-41
 	android:icon
@@ -95,8 +95,8 @@ MERGED from [com.android.support:support-v4:27.1.0] /Users/kaleb/.gradle/caches/
 MERGED from [com.android.support:support-v4:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-v4-27.1.0.aar/46341d1306d2a3a11c31190ccedf2286/AndroidManifest.xml:20:5-44
 MERGED from [com.android.support:appcompat-v7:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.1.0.aar/0f00165a01c69c0edb7a1b23db73ab62/AndroidManifest.xml:20:5-44
 MERGED from [com.android.support:appcompat-v7:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.1.0.aar/0f00165a01c69c0edb7a1b23db73ab62/AndroidManifest.xml:20:5-44
-MERGED from [com.github.KalebKE:FSensor:v1.1.4] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/FSensor-v1.1.4.aar/7cf7ba3ddff4b17117ab0f7849625bdd/AndroidManifest.xml:7:5-9:41
-MERGED from [com.github.KalebKE:FSensor:v1.1.4] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/FSensor-v1.1.4.aar/7cf7ba3ddff4b17117ab0f7849625bdd/AndroidManifest.xml:7:5-9:41
+MERGED from [com.github.KalebKE:FSensor:v1.2] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/FSensor-v1.2.aar/6cd9205e80491ca8620157bb0d0f4102/AndroidManifest.xml:7:5-9:41
+MERGED from [com.github.KalebKE:FSensor:v1.2] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/FSensor-v1.2.aar/6cd9205e80491ca8620157bb0d0f4102/AndroidManifest.xml:7:5-9:41
 MERGED from [com.android.support:support-media-compat:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-media-compat-27.1.0.aar/e9f19e7c4dff4cee8957aacf022078b6/AndroidManifest.xml:20:5-44
 MERGED from [com.android.support:support-media-compat:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-media-compat-27.1.0.aar/e9f19e7c4dff4cee8957aacf022078b6/AndroidManifest.xml:20:5-44
 MERGED from [com.android.support:support-fragment:27.1.0] /Users/kaleb/.gradle/caches/transforms-1/files-1.1/support-fragment-27.1.0.aar/aeea1646b712585599fe624b5b030a1a/AndroidManifest.xml:20:5-44

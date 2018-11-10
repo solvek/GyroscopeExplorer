@@ -210,7 +210,7 @@ public final class GaugeRotation extends View {
 
         float halfHeight = ((rimRect.top - rimRect.bottom)/2);
 
-        float top = rimRect.top - halfHeight + (-rotation[1]*halfHeight);
+        float top = rimRect.top - halfHeight + (rotation[0]*halfHeight);
         
         if(rimRect.left <= rimRect.right && top <= rimRect.bottom) {
             // free the old bitmap
@@ -252,9 +252,9 @@ public final class GaugeRotation extends View {
             faceCanvas.drawArc(faceBackgroundRect, 0, 360, true, skyPaint);
             skyCanvas.drawRect(skyBackgroundRect, skyPaint);
 
-            float angle = (float) Math.toDegrees(rotation[2]);
+            float angle = (float) -Math.toDegrees(rotation[1]);
 
-            canvas.save(Canvas.ALL_SAVE_FLAG);
+            canvas.save();
             canvas.rotate(angle, faceBitmap.getWidth() / 2f,
                     faceBitmap.getHeight() / 2f);
 
@@ -314,7 +314,7 @@ public final class GaugeRotation extends View {
         drawFace(canvas);
 
         float scale = (float) getWidth();
-        canvas.save(Canvas.ALL_SAVE_FLAG);
+        canvas.save();
         canvas.scale(scale, scale);
 
         canvas.restore();

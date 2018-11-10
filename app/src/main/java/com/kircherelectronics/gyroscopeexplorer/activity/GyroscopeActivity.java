@@ -17,6 +17,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,6 +37,9 @@ import com.kircherelectronics.gyroscopeexplorer.gauge.GaugeRotation;
 import com.kircherelectronics.gyroscopeexplorer.view.VectorDrawableButton;
 
 import org.apache.commons.math3.complex.Quaternion;
+
+import java.util.Arrays;
+import java.util.Locale;
 
 /*
  * Copyright 2013-2017, Kaleb Kircher - Kircher Engineering, LLC
@@ -236,10 +240,11 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
                 case COMPLIMENTARY_FILTER:
                     if(!orientationComplimentaryFusion.isBaseOrientationSet()) {
                         if(hasAcceleration && hasMagnetic) {
-                            orientationComplimentaryFusion.setBaseOrientation(RotationUtil.getOrientationQuaternionFromAccelerationMagnetic(acceleration, magnetic));
+                            orientationComplimentaryFusion.setBaseOrientation(RotationUtil.getOrientationVectorFromAccelerationMagnetic(acceleration, magnetic));
                         }
                     } else {
                         fusedOrientation = orientationComplimentaryFusion.calculateFusedOrientation(rotation, event.timestamp, acceleration, magnetic);
+                        Log.d("kbk", "Process Orientation Fusion Complimentary: " + Arrays.toString(fusedOrientation));
                     }
 
                     break;
@@ -247,7 +252,7 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
 
                     if(!orientationKalmanFusion.isBaseOrientationSet()) {
                         if(hasAcceleration && hasMagnetic) {
-                            orientationKalmanFusion.setBaseOrientation(RotationUtil.getOrientationQuaternionFromAccelerationMagnetic(acceleration, magnetic));
+                            orientationKalmanFusion.setBaseOrientation(RotationUtil.getOrientationVectorFromAccelerationMagnetic(acceleration, magnetic));
                         }
                     } else {
                         fusedOrientation = orientationKalmanFusion.calculateFusedOrientation(rotation, event.timestamp, acceleration, magnetic);
@@ -421,13 +426,13 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
     }
 
     private void updateText() {
-        tvXAxis.setText(String.format("%.2f", (Math.toDegrees(fusedOrientation[0]) + 360) % 360));
-        tvYAxis.setText(String.format("%.2f", (Math.toDegrees(fusedOrientation[1]) + 360) % 360));
-        tvZAxis.setText(String.format("%.2f", (Math.toDegrees(fusedOrientation[2]) + 360) % 360));
+        tvXAxis.setText(String.format(Locale.getDefault(),"%.1f", (Math.toDegrees(fusedOrientation[0]) + 360) % 360));
+        tvYAxis.setText(String.format(Locale.getDefault(),"%.1f", (Math.toDegrees(fusedOrientation[1]) + 360) % 360));
+        tvZAxis.setText(String.format(Locale.getDefault(),"%.1f", (Math.toDegrees(fusedOrientation[2]) + 360) % 360));
     }
 
     private void updateGauges() {
-        gaugeBearingCalibrated.updateBearing(fusedOrientation[0]);
+        gaugeBearingCalibrated.updateBearing(fusedOrientation[2]);
         gaugeTiltCalibrated.updateRotation(fusedOrientation);
     }
 

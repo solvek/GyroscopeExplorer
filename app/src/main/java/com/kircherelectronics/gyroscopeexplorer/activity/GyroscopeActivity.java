@@ -168,8 +168,6 @@ public class GyroscopeActivity extends AppCompatActivity {
                 break;
         }
 
-        Log.d("kbk", "Type: " + fSensor.getClass().getSimpleName());
-
         fSensor.register(sensorObserver);
         fSensor.start();
         uiHandler.post(uiRunnable);

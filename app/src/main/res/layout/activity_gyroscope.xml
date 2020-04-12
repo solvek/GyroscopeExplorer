@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:weightSum="10">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -182,7 +182,7 @@
             android:id="@+id/button_start"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/action_start_log"
+            android:text="@string/action_start"
             android:layout_weight="0.5"
             android:backgroundTint="@color/dark_blue"
             android:theme="@style/AppTheme.BlueButton"

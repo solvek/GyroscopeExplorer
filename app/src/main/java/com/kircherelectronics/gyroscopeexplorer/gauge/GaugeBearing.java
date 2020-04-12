@@ -48,18 +48,16 @@ public final class GaugeBearing extends View
 
 	private boolean handInitialized = false;
 
-	private float handPosition = DEGREE_CENTER;
-	private float handTarget = DEGREE_CENTER;
-	private float handVelocity = 0.0f;
-	private float handAcceleration = 0.0f;
+	private double handPosition = DEGREE_CENTER;
+	private double handTarget = DEGREE_CENTER;
+	private double handVelocity = 0.0f;
+	private double handAcceleration = 0.0f;
 
 	private long lastHandMoveTime = -1L;
 
 	// Static bitmaps
 	private Bitmap background;
 	private Bitmap hand;
-
-	private Canvas handCanvas;
 
 	private Paint backgroundPaint;
 	private Paint facePaint;
@@ -114,7 +112,7 @@ public final class GaugeBearing extends View
 	 * 
 	 * @param azimuth
 	 */
-	public void updateBearing(float azimuth)
+	public void updateBearing(double azimuth)
 	{
 		// Adjust the range: 0 < range <= 360 (from: -180 < range <=
 		// 180)
@@ -159,10 +157,10 @@ public final class GaugeBearing extends View
 		Bundle state = new Bundle();
 		state.putParcelable("superState", superState);
 		state.putBoolean("handInitialized", handInitialized);
-		state.putFloat("handPosition", handPosition);
-		state.putFloat("handTarget", handTarget);
-		state.putFloat("handVelocity", handVelocity);
-		state.putFloat("handAcceleration", handAcceleration);
+		state.putDouble("handPosition", handPosition);
+		state.putDouble("handTarget", handTarget);
+		state.putDouble("handVelocity", handVelocity);
+		state.putDouble("handAcceleration", handAcceleration);
 		state.putLong("lastHandMoveTime", lastHandMoveTime);
 		return state;
 	}
@@ -299,16 +297,6 @@ public final class GaugeBearing extends View
 		canvas.drawOval(faceRect, facePaint);
 	}
 
-	/**
-	 * Convert degrees to an angle.
-	 * 
-	 * @param degree
-	 * @return
-	 */
-	private float degreeToAngle(float degree)
-	{
-		return degree;
-	}
 
 	/**
 	 * Draw the gauge hand.
@@ -334,22 +322,21 @@ public final class GaugeBearing extends View
 
 		hand = Bitmap.createBitmap(getWidth(), getHeight(),
 				Bitmap.Config.ARGB_8888);
-		handCanvas = new Canvas(hand);
+		Canvas handCanvas = new Canvas(hand);
 		float scale = (float) getWidth();
 		handCanvas.scale(scale, scale);
 
 		if (handInitialized)
 		{
-			float handAngle = degreeToAngle(handPosition);
 			handCanvas.save();
-			handCanvas.rotate(handAngle, 0.5f, 0.5f);
+			handCanvas.rotate((float) handPosition, 0.5f, 0.5f);
 			handCanvas.drawPath(handPath, handPaint);
 		}
 		else
 		{
-			float handAngle = degreeToAngle(0);
+
 			handCanvas.save();
-			handCanvas.rotate(handAngle, 0.5f, 0.5f);
+			handCanvas.rotate((float) handPosition, 0.5f, 0.5f);
 			handCanvas.drawPath(handPath, handPaint);
 		}
 
@@ -417,7 +404,7 @@ public final class GaugeBearing extends View
 	 * 
 	 * @param bearing
 	 */
-	private void setHandTarget(float bearing)
+	private void setHandTarget(double bearing)
 	{
 		if (bearing < DEGREE_MIN)
 		{

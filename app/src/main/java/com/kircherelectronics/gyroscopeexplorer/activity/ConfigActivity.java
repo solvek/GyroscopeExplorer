@@ -80,7 +80,7 @@ public class ConfigActivity extends PreferenceActivity implements
         }
 
         if (key.equals(COMPLIMENTARY_QUATERNION_COEFF_KEY)) {
-            if (Double.valueOf(sharedPreferences.getString(key, "0.5")) > 1) {
+            if (Double.parseDouble(sharedPreferences.getString(key, "0.5")) < 1) {
                 sharedPreferences.edit().putString(key, "0.5").apply();
                 ((EditTextPreference) findPreference(COMPLIMENTARY_QUATERNION_COEFF_KEY)).setText("0.5");
                 Toast.makeText(getApplicationContext(), "The filter constant must be less than or equal to 1", Toast.LENGTH_LONG).show();

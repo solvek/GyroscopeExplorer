@@ -56,7 +56,8 @@ public final class GaugeRotation extends View {
     private Bitmap mutableBitmap;
 
     // Keep track of the rotation of the device
-    private float[] rotation = new float[3];
+    private float x;
+    private float y;
 
     // Rectangle to draw the rim of the gauge
     private RectF rimRect;
@@ -113,10 +114,10 @@ public final class GaugeRotation extends View {
     /**
      * Update the rotation of the device.
      *
-     * @param rotation
      */
-    public void updateRotation(float[] rotation) {
-        System.arraycopy(rotation, 0, this.rotation, 0, this.rotation.length);
+    public void updateRotation(float x, float y) {
+        this.x = x;
+        this.y = y;
 
         this.invalidate();
     }
@@ -210,7 +211,7 @@ public final class GaugeRotation extends View {
 
         float halfHeight = ((rimRect.top - rimRect.bottom)/2);
 
-        float top = rimRect.top - halfHeight + (rotation[0]*halfHeight);
+        double top = rimRect.top - halfHeight + (x*halfHeight);
         
         if(rimRect.left <= rimRect.right && top <= rimRect.bottom) {
             // free the old bitmap
@@ -246,13 +247,13 @@ public final class GaugeRotation extends View {
                     rimRect.bottom);
 
 
-            skyBackgroundRect.set(rimRect.left, top, rimRect.right,
+            skyBackgroundRect.set(rimRect.left, (float) top, rimRect.right,
                     rimRect.bottom);
 
             faceCanvas.drawArc(faceBackgroundRect, 0, 360, true, skyPaint);
             skyCanvas.drawRect(skyBackgroundRect, skyPaint);
 
-            float angle = (float) -Math.toDegrees(rotation[1]);
+            float angle = (float) -Math.toDegrees(y);
 
             canvas.save();
             canvas.rotate(angle, faceBitmap.getWidth() / 2f,

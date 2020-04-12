@@ -4,8 +4,6 @@
     <string name="app_name">GyroscopeExplorer</string>
     <string name="sensor_label">Sensor</string>
     <string name="sensor_calibrated_name">Gyroscope</string>
-    <string name="sensor_active">Active</string>
-    <string name="sensor_unavailable">Unavailable</string>
     <string name="action_config">Settings</string>
     <string name="action_reset">Reset</string>
     <string name="label_x_axis">X-Axis:</string>
@@ -14,11 +12,9 @@
     <string name="value_default">0.0</string>
     <string name="value_default_mean_filter">0.5</string>
     <string name="value_default_complimentary_filter">0.5</string>
-    <string name="developer_url">KircherElectronics.com</string>
-    <string name="confirm_label">I got this.</string>
     <string name="action_options">Options</string>
     <string name="action_help">Help</string>
-    <string name="action_start_log">Start</string>
-    <string name="action_stop_log">Stop</string>
+    <string name="action_start">Start Log</string>
+    <string name="action_stop">Stop Log</string>
 
 </resources>

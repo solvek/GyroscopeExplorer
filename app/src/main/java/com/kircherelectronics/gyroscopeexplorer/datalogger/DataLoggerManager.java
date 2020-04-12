@@ -28,18 +28,18 @@ import java.util.Calendar;
  * Created by KircherEngineerH on 4/27/2016.
  */
 public class DataLoggerManager implements Runnable {
-    private static final String tag = DataLoggerManager.class.getSimpleName();
+    private static final String TAG = DataLoggerManager.class.getSimpleName();
 
-    public final static String DEFAULT_APPLICATION_DIRECTORY = "GyroscopeExplorer";
+    private final static String DEFAULT_APPLICATION_DIRECTORY = "GyroscopeExplorer";
 
     private final static long THREAD_SLEEP_TIME = 20;
-    public final static String FILE_NAME_SEPARATOR = "-";
+    private final static String FILE_NAME_SEPARATOR = "-";
 
     // boolean to indicate if the data should be written to a file.
     private volatile boolean logData = false;
 
     // Log output time stamp
-    protected long logTime = 0;
+    private long logTime = 0;
 
     private ArrayList<String> csvHeaders;
     private ArrayList<String> csvValues;
@@ -118,7 +118,7 @@ public class DataLoggerManager implements Runnable {
         csvValues.clear();
         csvValues.add(String.valueOf((System.currentTimeMillis() - logTime) / 1000.0f));
 
-        synchronized (rotation) {
+        synchronized (this) {
             csvValues.addAll(rotation);
         }
 

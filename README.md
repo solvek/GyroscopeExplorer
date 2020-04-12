@@ -11,7 +11,7 @@ Gyroscope Explorer provides a working open source code example and Android appli
 
 # Backed by FSensor
 
-![Alt text](http://kircherelectronics.com/wp-content/uploads/2017/12/FSensor.png "FSensor" "FSensor")
+![Alt text](http://kircherelectronics.com/wp-content/uploads/2017/12/FSensor.png "FSensor")
 
 The latest release of Gyroscope Explorer is now backed by [FSensor](https://github.com/KalebKE/FSensor). *If you are interested in implementing the sensor fusions, you want to go there.* FSensor (FusionSensor) is an Android library that (hopefully) removes some/most of the complexity of using Androids orientation sensors (Acceleration, Magnetic and Gyroscope). You can now just link FSensor to your project and get coding. No more having to wade through dense code to pick the parts you need.
 

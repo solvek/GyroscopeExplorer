@@ -175,8 +175,6 @@ public class GyroscopeActivity extends AppCompatActivity {
 
     @Override
     public void onPause() {
-        super.onPause();
-
         if(helpDialog != null && helpDialog.isShowing()) {
             helpDialog.dismiss();
         }
@@ -184,6 +182,8 @@ public class GyroscopeActivity extends AppCompatActivity {
         fSensor.unregister(sensorObserver);
         fSensor.stop();
         uiHandler.removeCallbacksAndMessages(null);
+
+        super.onPause();
     }
 
     @Override

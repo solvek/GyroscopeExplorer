@@ -1,7 +1,7 @@
 package com.kircherelectronics.gyroscopeexplorer.datalogger;
 
 import android.content.Context;
-import android.os.Environment;
+import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -83,7 +83,9 @@ public class DataLoggerManager implements Runnable {
         if (!logData) {
             logData = true;
             logTime = System.currentTimeMillis();
-            dataLogger = new CsvDataLogger(context, getFile(this.getFilePath(), this.getFileName()));
+            File file = getFile(this.getFilePath(), this.getFileName());
+            Log.d(TAG, "Writing log to file "+file.getAbsolutePath());
+            dataLogger = new CsvDataLogger(context, file);
             dataLogger.setHeaders(csvHeaders);
             thread = new Thread(this);
             thread.start();

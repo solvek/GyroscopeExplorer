@@ -60,20 +60,16 @@ public class CsvDataLogger implements DataLoggerInterface
 
     public void setHeaders(Iterable<String> headers) throws IllegalStateException
     {
-        if(!headersSet && csv != null)
-        {
-            try
-            {
-                csv.printRecord(headers);
-                headersSet = true;
-            } catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
-        else
-        {
+        if (headersSet || csv == null) {
             throw new IllegalStateException("Headers already exist!");
+        }
+        try
+        {
+            csv.printRecord(headers);
+            headersSet = true;
+        } catch (IOException e)
+        {
+            e.printStackTrace();
         }
     }
 

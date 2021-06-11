@@ -136,8 +136,7 @@ public class DataLoggerManager implements Runnable {
     }
 
     private String getFilePath() {
-        return new StringBuilder().append(Environment.getExternalStorageDirectory()).append(File.separator).append
-                (DEFAULT_APPLICATION_DIRECTORY).append(File.separator).toString();
+        return context.getExternalFilesDir(null).getAbsolutePath();
     }
 
     private String getFileName() {
